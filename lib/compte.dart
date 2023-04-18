@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
-import 'EditPage.dart';
+import 'EditUser.dart';
 import 'LoginPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'CreatePage.dart';
+import 'listePage.dart';
 
 class Compte extends StatelessWidget {
   final Map<String, dynamic> userData;
 
   Compte(this.userData);
+  void _havePage(BuildContext context) {
+    print(userData['pages'].length);
+    if (userData['pages'].length != 0) {
+      print('true');
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => MyTableScreen()));
+    } else {
+      print('false');
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => ProfileForm()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +58,16 @@ class Compte extends StatelessWidget {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => EditPage(userData: userData),
+                        builder: (_) => EditUser(userData: userData),
                       ),
                     );
-                    ;
                   },
                   child: Text('Edit'),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (_) => ProfileForm()));
+                    _havePage(context);
                   },
                   child: Text('Create'),
                 ),

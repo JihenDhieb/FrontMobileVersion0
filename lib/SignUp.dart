@@ -21,7 +21,7 @@ class _SignUpState extends State<SignUp> {
 
   Future<void> _registerUser() async {
     final Uri apiUrl =
-        Uri.parse('http://192.168.42.28:8080/api/auth/registerUser');
+        Uri.parse('http://192.168.1.26:8080/api/auth/registerUser');
     final response = await http.post(
       apiUrl,
       headers: {'Content-Type': 'application/json'},
@@ -227,7 +227,7 @@ class _SignUpState extends State<SignUp> {
                                   Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (_) => HomePage()));
+                                          builder: (_) => LoginPage()));
                                 }
                                 // Envoyer les données d'inscription
                               },

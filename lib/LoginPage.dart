@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     final String password = _passwordController.text;
 
     final response = await http.post(
-      Uri.parse('http://192.168.42.28:8080/api/auth/loginUser'),
+      Uri.parse('http://192.168.1.26:8080/api/auth/loginUser'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Token: $token');
       print('Login Succesfuly');
       final userResponse = await http.get(
-        Uri.parse('http://192.168.42.28:8080/User/$id'),
+        Uri.parse('http://192.168.1.26:8080/User/$id'),
         headers: <String, String>{
           'Authorization': 'Bearer $token',
         },

@@ -1,92 +1,80 @@
-import 'package:appcommerce/detailPage.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'listePage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'home.dart';
 
-class EditPage extends StatefulWidget {
-  final Map<dynamic, dynamic> pageData;
+class EditUser extends StatefulWidget {
+  final Map<String, dynamic> userData;
 
-  EditPage(this.pageData);
+  EditUser({required this.userData});
 
   @override
-  _EditPageState createState() => _EditPageState();
+  _EditUserState createState() => _EditUserState();
 }
 
-class _EditPageState extends State<EditPage> {
+class _EditUserState extends State<EditUser> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _titleController;
-  late TextEditingController _addressController;
-  late TextEditingController _cityController;
-  late TextEditingController _phoneController;
-  late TextEditingController _postalCodeController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
   late TextEditingController _emailController;
+  late TextEditingController _passwordController;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.pageData['title']);
-    _addressController =
-        TextEditingController(text: widget.pageData['address']);
-    _cityController = TextEditingController(text: widget.pageData['city']);
-    _phoneController = TextEditingController(text: widget.pageData['phone']);
-    _postalCodeController =
-        TextEditingController(text: widget.pageData['postalCode']);
-    _emailController = TextEditingController(text: widget.pageData['email']);
+    _firstNameController =
+        TextEditingController(text: widget.userData['firstName']);
+    _lastNameController =
+        TextEditingController(text: widget.userData['lastName']);
+    _emailController = TextEditingController(text: widget.userData['email']);
+    _passwordController = TextEditingController(
+        text: 'laisser vide pour garder le dernier mot de passe');
   }
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _addressController.dispose();
-    _cityController.dispose();
-    _phoneController.dispose();
-    _postalCodeController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final String title = _titleController.text;
-      final String address = _addressController.text;
-      final String city = _cityController.text;
-      final String phone = _phoneController.text;
-      final String postalCode = _postalCodeController.text;
+      final String firstName = _firstNameController.text;
+      final String lastName = _lastNameController.text;
       final String email = _emailController.text;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? id = prefs.getString('id');
+      final String password = _passwordController.text;
+
       final response = await http.put(
-        Uri.parse('http://192.168.1.26:8080/pages/editPage/$id'),
+        Uri.parse('http://192.168.1.26:8080/User/edit'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'id': widget.pageData['id'],
-          'title': title,
-          'address': address,
-          'phone': phone,
-          'postalCode': postalCode,
-          'city': city,
+          'id': widget.userData['id'],
+          'firstName': firstName,
+          'lastName': lastName,
           'email': email,
+          'password': password,
         }),
       );
 
       if (response.statusCode == 200) {
-        // If update is successful, navigate back to Compte widget
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => MyTableScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => HomePage()),
         );
+
+        // If update is successful, navigate back to Compte widget
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Page details updated')),
+          const SnackBar(content: Text('User details updated')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error updating Page details')),
+          const SnackBar(content: Text('Error updating user details')),
         );
       }
     }
@@ -130,9 +118,9 @@ class _EditPageState extends State<EditPage> {
             children: [
               SizedBox(height: 16.0),
               TextFormField(
-                controller: _titleController,
+                controller: _firstNameController,
                 decoration: InputDecoration(
-                  labelText: 'title',
+                  labelText: 'FirstName',
                   labelStyle: TextStyle(
                     color: Colors.blueGrey[800],
                   ),
@@ -142,16 +130,16 @@ class _EditPageState extends State<EditPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your title';
+                    return 'Please enter your first name';
                   }
                   return null;
                 },
               ),
               SizedBox(height: 16.0),
               TextFormField(
-                controller: _addressController,
+                controller: _lastNameController,
                 decoration: InputDecoration(
-                  labelText: 'Address',
+                  labelText: 'LastName',
                   labelStyle: TextStyle(
                     color: Colors.blueGrey[800],
                   ),
@@ -161,64 +149,7 @@ class _EditPageState extends State<EditPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your Address';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _cityController,
-                decoration: InputDecoration(
-                  labelText: 'City',
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey[800],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your city';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  labelText: 'Phone',
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey[800],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _postalCodeController,
-                decoration: InputDecoration(
-                  labelText: 'PostalCode',
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey[800],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your postalCode';
+                    return 'Please enter your last name';
                   }
                   return null;
                 },
@@ -227,7 +158,7 @@ class _EditPageState extends State<EditPage> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'email',
+                  labelText: 'Email',
                   labelStyle: TextStyle(
                     color: Colors.blueGrey[800],
                   ),
@@ -237,7 +168,26 @@ class _EditPageState extends State<EditPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your postalCode';
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey[800],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
                   }
                   return null;
                 },

@@ -59,7 +59,7 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
-  Future<void> addPage() async {
+  Future<void> addPage(BuildContext context) async {
     final String title = _titleController.text;
     final String address = _addressController.text;
     final String city = _CityController.text;
@@ -69,7 +69,7 @@ class _ProfileFormState extends State<ProfileForm> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
     final response = await http.post(
-      Uri.parse('http://192.168.42.28:8080/pages/add/$id'),
+      Uri.parse('http://192.168.1.26:8080/pages/add/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -87,7 +87,7 @@ class _ProfileFormState extends State<ProfileForm> {
       var id1 = response.body;
 
       final request = http.MultipartRequest('POST',
-          Uri.parse('http://192.168.42.28:8080/pages/addImagesToPage/$id1'));
+          Uri.parse('http://192.168.1.26:8080/pages/addImagesToPage/$id1'));
 
       var imageProfile1 =
           await http.MultipartFile.fromPath('imageProfile', imageProfile!.path);
@@ -97,6 +97,10 @@ class _ProfileFormState extends State<ProfileForm> {
       request.files.add(imageProfile1);
       request.files.add(imageCouverture1);
       var responsee = await request.send();
+      if (responsee.statusCode == 200) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MyTableScreen()));
+      }
     } else {
       print('Error adding page');
     }
@@ -117,10 +121,7 @@ class _ProfileFormState extends State<ProfileForm> {
           ),
           TextButton(
             onPressed: () {
-              addPage();
-
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => ListPage()));
+              addPage(context);
             },
             child: Text('Save'),
           ),
