@@ -1,3 +1,5 @@
+import 'package:appcommerce/Addarticle.dart';
+import 'package:appcommerce/DetailArticle.dart';
 import 'package:appcommerce/home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,16 +8,34 @@ import 'dart:convert';
 import 'EditPage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class detailPage extends StatelessWidget {
   PickedFile? imageEdit;
+
+  String? nom;
   final Map<dynamic, dynamic> pageData;
+  final List<dynamic> articles;
   late Map<dynamic, dynamic> imageProfile;
   late Map<dynamic, dynamic> imageCouv;
-  detailPage(this.pageData) {
+
+  detailPage(this.pageData, this.articles) {
     imageProfile = pageData['imageProfile'];
     imageCouv = pageData['imageCouverture'];
   }
+  // void _articles() async {
+  //   final String id = pageData['id'];
+
+  //   final request = (await http.get(
+  //       Uri.parse('http://192.168.1.26:8080/article/findArticlesByPage/$id')));
+
+  //   final jsonData = request.body;
+  //   final data = json.decode(jsonData);
+  //   articles.addAll(data);
+  //   print(articles.length);
+  // }
+
   void _submitFormProf() async {
     final String id = pageData['id'];
 
@@ -47,6 +67,18 @@ class detailPage extends StatelessWidget {
     var responsee = await request.send();
     if (responsee.statusCode == 200) {
       print('changed');
+    }
+  }
+
+  void _submitFormdelete(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id2 = prefs.getString('id');
+    final String id = pageData['id'];
+    final Response = await http
+        .get(Uri.parse('http://192.168.1.26:8080/pages/delete/$id/$id2'));
+    if (Response.statusCode == 200) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => MyTableScreen()));
     }
   }
 
@@ -100,6 +132,31 @@ class detailPage extends StatelessWidget {
     );
   }
 
+  void _showConfirmationDialogDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm'),
+        content: Text('Are you sure you want to delete Page ?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              _submitFormdelete(context);
+              Navigator.pop(context);
+            },
+            child: Text('delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Future<void> _pickImageCouvCamera() async {
@@ -146,7 +203,7 @@ class detailPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {
-              // Ajoutez ici la logique pour supprimer l'élément
+              _showConfirmationDialogDelete(context);
             },
           ),
           IconButton(
@@ -172,7 +229,7 @@ class detailPage extends StatelessWidget {
               Stack(
                 children: [
                   Container(
-                    height: 300,
+                    height: 200,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       image: DecorationImage(
@@ -262,7 +319,7 @@ class detailPage extends StatelessWidget {
                       })
                 ],
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -270,52 +327,16 @@ class detailPage extends StatelessWidget {
                   children: [
                     SizedBox(height: 16),
                     Text(
-                      'Title :${pageData['title']}',
+                      'Title: ${pageData['title']}',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 12),
                     Text(
-                      'Address :${pageData['address']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Tcity:${pageData['city']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Phone :${pageData['phone']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Email :${pageData['email']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'PostalCode :${pageData['postalCode']}',
+                      'Address: ${pageData['address']}',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
@@ -323,17 +344,121 @@ class detailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 16),
+                    Text(
+                      'City: ${pageData['city']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Phone: ${pageData['phone']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Email: ${pageData['email']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Postal Code: ${pageData['postalCode']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (articles.length != 0)
+                      CarouselSlider.builder(
+                        itemCount: articles.length,
+                        itemBuilder: (BuildContext context, int index,
+                            int pageViewIndex) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          DetailArticle(articles[index])));
+                            },
+                            child: Expanded(
+                              child: Container(
+                                padding: EdgeInsets.all(3.0),
+                                margin: EdgeInsets.symmetric(horizontal: 0.5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      height: 90,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: MemoryImage(
+                                            base64Decode(
+                                              articles[index]['image']['bytes'],
+                                            ),
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.0),
+                                    Text(
+                                      'Name: ${articles[index]['nom']}',
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                    SizedBox(height: 6.0),
+                                    Text(
+                                      'Stock: ${articles[index]['nbstock']}',
+                                      style: TextStyle(fontSize: 14.0),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        options: CarouselOptions(
+                          autoPlay: false,
+                          aspectRatio: 2.0,
+                          enlargeCenterPage: true,
+                          scrollDirection: Axis.horizontal,
+                          viewportFraction: 0.33,
+                        ),
+                      ),
+                    SizedBox(height: 50),
                     ElevatedButton(
                       onPressed: () {
-                        // TODO: Ajouter le code pour ajouter un produit ici
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Addarticle(pageData)));
                       },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.add),
-                          SizedBox(width: 4.0),
-                          Text('Ajouter produit'),
-                        ],
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add),
+                            SizedBox(width: 4.0),
+                            Text('Add Article'),
+                          ],
+                        ),
                       ),
                     ),
                   ],

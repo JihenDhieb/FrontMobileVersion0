@@ -34,12 +34,16 @@ Future<List<Page>> getData() async {
 }
 
 Future<void> _openPage(id, BuildContext context) async {
+  final request = (await http.get(
+      Uri.parse('http://192.168.1.26:8080/article/findArticlesByPage/$id')));
+
+  final List<dynamic> articles = json.decode(request.body);
   final pageResponse =
       await http.get(Uri.parse('http://192.168.1.26:8080/pages/getpage/$id'));
   final Map<dynamic, dynamic> pageData = json.decode(pageResponse.body);
 
-  Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (_) => detailPage(pageData)));
+  Navigator.pushReplacement(context,
+      MaterialPageRoute(builder: (_) => detailPage(pageData, articles)));
 }
 
 class MyTableScreen extends StatelessWidget {

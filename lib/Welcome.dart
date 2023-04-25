@@ -1,8 +1,89 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
+import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class Welcome extends StatelessWidget {
+class Welcome extends StatefulWidget {
   const Welcome({Key? key}) : super(key: key);
+
+  @override
+  _WelcomeState createState() => _WelcomeState();
+}
+
+class _WelcomeState extends State<Welcome> {
+  Location _location = Location();
+  late SharedPreferences _prefs;
+  LocationData? _currentLocation;
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((prefs) {
+      _prefs = prefs;
+      final double? latitude = _prefs.getDouble('latitude');
+      final double? longitude = _prefs.getDouble('longitude');
+      if (latitude != null && longitude != null) {
+        _currentLocation = LocationData.fromMap(
+            {'latitude': latitude, 'longitude': longitude});
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+    });
+  }
+
+  Future<void> _getLocationPermission() async {
+    var status = await Permission.locationWhenInUse.status;
+    if (status.isGranted) {
+      await _getLocation();
+      return;
+    }
+    if (status.isDenied) {
+      var result = await showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+                title: Text("Location Permission Required"),
+                content:
+                    Text("Please grant permission to access your location."),
+                actions: <Widget>[
+                  ElevatedButton(
+                    child: Text("Cancel"),
+                    onPressed: () => Navigator.pop(context, false),
+                  ),
+                  ElevatedButton(
+                    child: Text("OK"),
+                    onPressed: () => Navigator.pop(context, true),
+                  ),
+                ],
+              ));
+      if (result != null && result) {
+        status = await Permission.locationWhenInUse.request();
+        if (status.isGranted) {
+          await _getLocation();
+        }
+      }
+    }
+  }
+
+  Future<void> _getLocation() async {
+    try {
+      _currentLocation = await _location.getLocation();
+      print(
+          'Latitude: ${_currentLocation?.latitude}, Longitude: ${_currentLocation?.longitude}');
+
+      // Store the latitude and longitude in shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('latitude', _currentLocation?.latitude ?? 0.0);
+      await prefs.setDouble('longitude', _currentLocation?.longitude ?? 0.0);
+    } catch (e) {
+      print("Error: ${e.toString()}");
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +94,8 @@ class Welcome extends StatelessWidget {
         decoration: const BoxDecoration(
             gradient: LinearGradient(
                 colors: [
-                  Color.fromARGB(248, 24, 186, 35),
-                  Color(0xff382743),
+                  Color.fromARGB(248, 24, 51, 186),
+                  Color.fromARGB(255, 111, 29, 165),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -45,34 +126,21 @@ class Welcome extends StatelessWidget {
                 ),
               ),
               Positioned(
-                  bottom: 100,
-                  left: 0,
-                  right: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (_) => HomePage()));
-                      },
-                      child: Container(
-                        height: 50,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Get Started',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ))
+                bottom: 100,
+                left: 0,
+                right: 0,
+                child: ElevatedButton(
+                  onPressed: _getLocationPermission,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.location_on),
+                      SizedBox(width: 5.0),
+                      Text('Get current location'),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
