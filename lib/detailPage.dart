@@ -1,13 +1,11 @@
 import 'package:appcommerce/Addarticle.dart';
 import 'package:appcommerce/DetailArticle.dart';
-import 'package:appcommerce/home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'listePage.dart';
 import 'dart:convert';
 import 'EditPage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -24,18 +22,6 @@ class detailPage extends StatelessWidget {
     imageProfile = pageData['imageProfile'];
     imageCouv = pageData['imageCouverture'];
   }
-  // void _articles() async {
-  //   final String id = pageData['id'];
-
-  //   final request = (await http.get(
-  //       Uri.parse('http://192.168.1.26:8080/article/findArticlesByPage/$id')));
-
-  //   final jsonData = request.body;
-  //   final data = json.decode(jsonData);
-  //   articles.addAll(data);
-  //   print(articles.length);
-  // }
-
   void _submitFormProf() async {
     final String id = pageData['id'];
 
@@ -343,15 +329,6 @@ class detailPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      'City: ${pageData['city']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                     SizedBox(height: 12),
                     Text(
                       'Phone: ${pageData['phone']}',
@@ -373,6 +350,24 @@ class detailPage extends StatelessWidget {
                     SizedBox(height: 12),
                     Text(
                       'Postal Code: ${pageData['postalCode']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Activity: ${pageData['activity'].toString().split('.').last}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Region: ${pageData['region'].toString().split('.').last}',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,

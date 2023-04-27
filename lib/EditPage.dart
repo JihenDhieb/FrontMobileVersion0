@@ -14,14 +14,44 @@ class EditPage extends StatefulWidget {
   _EditPageState createState() => _EditPageState();
 }
 
+enum Activity { FOOD, Mode, BEAUTE, ELECTRONIQUES }
+
+enum Region {
+  Ariana,
+  Beja,
+  BenArous,
+  Bizerte,
+  Gabes,
+  Gafsa,
+  Jendouba,
+  Kairouan,
+  Kasserine,
+  Kebili,
+  Kef,
+  Mahdia,
+  Manouba,
+  Medenine,
+  Monastir,
+  Nabeul,
+  Sfax,
+  SidiBouzid,
+  Siliana,
+  Sousse,
+  Tataouine,
+  Tozeur,
+  Tunis,
+  Zaghouan,
+}
+
 class _EditPageState extends State<EditPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _addressController;
-  late TextEditingController _cityController;
   late TextEditingController _phoneController;
   late TextEditingController _postalCodeController;
   late TextEditingController _emailController;
+  late Activity selectedActivity;
+  late Region selectedRegion;
 
   @override
   void initState() {
@@ -29,18 +59,21 @@ class _EditPageState extends State<EditPage> {
     _titleController = TextEditingController(text: widget.pageData['title']);
     _addressController =
         TextEditingController(text: widget.pageData['address']);
-    _cityController = TextEditingController(text: widget.pageData['city']);
     _phoneController = TextEditingController(text: widget.pageData['phone']);
     _postalCodeController =
         TextEditingController(text: widget.pageData['postalCode']);
     _emailController = TextEditingController(text: widget.pageData['email']);
+
+    selectedActivity = Activity.values.firstWhere((activity) =>
+        activity.toString().split('.').last == widget.pageData['activity']);
+    selectedRegion = Region.values.firstWhere((region) =>
+        region.toString().split('.').last == widget.pageData['region']);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _addressController.dispose();
-    _cityController.dispose();
     _phoneController.dispose();
     _postalCodeController.dispose();
     _emailController.dispose();
@@ -51,7 +84,6 @@ class _EditPageState extends State<EditPage> {
     if (_formKey.currentState!.validate()) {
       final String title = _titleController.text;
       final String address = _addressController.text;
-      final String city = _cityController.text;
       final String phone = _phoneController.text;
       final String postalCode = _postalCodeController.text;
       final String email = _emailController.text;
@@ -68,8 +100,9 @@ class _EditPageState extends State<EditPage> {
           'address': address,
           'phone': phone,
           'postalCode': postalCode,
-          'city': city,
           'email': email,
+          'activity': selectedActivity.toString().split('.').last,
+          'region': selectedRegion.toString().split('.').last,
         }),
       );
 
@@ -168,25 +201,6 @@ class _EditPageState extends State<EditPage> {
               ),
               SizedBox(height: 16.0),
               TextFormField(
-                controller: _cityController,
-                decoration: InputDecoration(
-                  labelText: 'City',
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey[800],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your city';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(
                   labelText: 'Phone',
@@ -238,6 +252,56 @@ class _EditPageState extends State<EditPage> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your postalCode';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20.0),
+              DropdownButtonFormField<Activity>(
+                decoration: InputDecoration(
+                  labelText: 'Activity',
+                  border: OutlineInputBorder(),
+                ),
+                value: selectedActivity,
+                items: Activity.values
+                    .map((activity) => DropdownMenuItem<Activity>(
+                          value: activity,
+                          child: Text(activity.toString().split('.').last),
+                        ))
+                    .toList(),
+                onChanged: (activity) {
+                  setState(() {
+                    selectedActivity = activity!;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Le champ activity est requis';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20.0),
+              DropdownButtonFormField<Region>(
+                decoration: InputDecoration(
+                  labelText: 'Region',
+                  border: OutlineInputBorder(),
+                ),
+                value: selectedRegion,
+                items: Region.values
+                    .map((region) => DropdownMenuItem<Region>(
+                          value: region,
+                          child: Text(region.toString().split('.').last),
+                        ))
+                    .toList(),
+                onChanged: (region) {
+                  setState(() {
+                    selectedRegion = region!;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Le champ region est requis';
                   }
                   return null;
                 },

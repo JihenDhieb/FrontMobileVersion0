@@ -3,14 +3,42 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
-import 'package:path/path.dart';
-import 'package:async/async.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'listePage.dart';
+import 'MyMap.dart';
 
 class ProfileForm extends StatefulWidget {
   @override
   _ProfileFormState createState() => _ProfileFormState();
+}
+
+enum Activity { FOOD, Mode, BEAUTE, ELECTRONIQUES }
+
+enum Region {
+  Ariana,
+  Beja,
+  BenArous,
+  Bizerte,
+  Gabes,
+  Gafsa,
+  Jendouba,
+  Kairouan,
+  Kasserine,
+  Kebili,
+  Kef,
+  Mahdia,
+  Manouba,
+  Medenine,
+  Monastir,
+  Nabeul,
+  Sfax,
+  SidiBouzid,
+  Siliana,
+  Sousse,
+  Tataouine,
+  Tozeur,
+  Tunis,
+  Zaghouan,
 }
 
 class _ProfileFormState extends State<ProfileForm> {
@@ -19,7 +47,6 @@ class _ProfileFormState extends State<ProfileForm> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
-  final TextEditingController _CityController = TextEditingController();
 
   final TextEditingController _emailController = TextEditingController();
   File? imageProfile;
@@ -28,8 +55,10 @@ class _ProfileFormState extends State<ProfileForm> {
   String? address;
   String? phone;
   String? postalCode;
-  String? city;
+
   String? email;
+  Activity? selectedActivity;
+  Region? selectedRegion;
 
   Future<void> _pickProfileImage() async {
     try {
@@ -62,7 +91,7 @@ class _ProfileFormState extends State<ProfileForm> {
   Future<void> addPage(BuildContext context) async {
     final String title = _titleController.text;
     final String address = _addressController.text;
-    final String city = _CityController.text;
+
     final String phone = _phoneController.text;
     final String postalCode = _postalCodeController.text;
     final String email = _emailController.text;
@@ -76,13 +105,13 @@ class _ProfileFormState extends State<ProfileForm> {
       body: jsonEncode(<String, String>{
         'title': title,
         'address': address,
-        'city': city,
         'phone': phone,
         'postalCode': postalCode,
         'email': email,
+        'activity': selectedActivity.toString().split('.').last,
+        'region': selectedRegion.toString().split('.').last,
       }),
     );
-
     if (response.statusCode == 200) {
       var id1 = response.body;
 
@@ -130,6 +159,7 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 
+  bool isFoodSelected = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,23 +212,6 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
                 SizedBox(height: 20.0),
                 TextFormField(
-                  controller: _CityController,
-                  decoration: InputDecoration(
-                    labelText: 'Ville',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Le champ ville est requis';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    city = value;
-                  },
-                ),
-                SizedBox(height: 20.0),
-                TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -231,21 +244,70 @@ class _ProfileFormState extends State<ProfileForm> {
                     phone = value;
                   },
                 ),
+                Column(
+                  children: [
+                    SizedBox(height: 20.0),
+                    DropdownButtonFormField<Activity>(
+                      decoration: InputDecoration(
+                        labelText: 'Activity',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: selectedActivity,
+                      items: Activity.values
+                          .map((activity) => DropdownMenuItem<Activity>(
+                                value: activity,
+                                child:
+                                    Text(activity.toString().split('.').last),
+                              ))
+                          .toList(),
+                      onChanged: (activity) {
+                        setState(() {
+                          selectedActivity = activity;
+                          isFoodSelected = selectedActivity == Activity.FOOD;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Le champ activity est requis';
+                        }
+                        return null;
+                      },
+                    ),
+                    if (isFoodSelected) ...[
+                      SizedBox(height: 20.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (_) => MyApp()));
+                        },
+                        child: Text('Add your  position'),
+                      ),
+                    ],
+                  ],
+                ),
                 SizedBox(height: 20.0),
-                TextFormField(
-                  controller: _postalCodeController,
+                DropdownButtonFormField<Region>(
                   decoration: InputDecoration(
-                    labelText: 'postalCode',
+                    labelText: 'Region',
                     border: OutlineInputBorder(),
                   ),
+                  value: selectedRegion,
+                  items: Region.values
+                      .map((region) => DropdownMenuItem<Region>(
+                            value: region,
+                            child: Text(region.toString().split('.').last),
+                          ))
+                      .toList(),
+                  onChanged: (region) {
+                    setState(() {
+                      selectedRegion = region;
+                    });
+                  },
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Le champ postalCode est requis';
+                    if (value == null) {
+                      return 'Le champ region est requis';
                     }
                     return null;
-                  },
-                  onSaved: (value) {
-                    postalCode = value;
                   },
                 ),
                 SizedBox(height: 20.0),
