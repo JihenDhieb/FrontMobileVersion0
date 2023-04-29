@@ -1,3 +1,4 @@
+import 'package:appcommerce/gestionpanier.dart';
 import 'package:flutter/material.dart';
 import 'LoginPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   String value;
+
   HomePage(this.value);
   @override
   _HomePageState createState() => _HomePageState();
@@ -26,12 +28,32 @@ enum Category {
 class _HomePageState extends State<HomePage> {
   double _latitude = 0.0;
   double _longitude = 0.0;
+  int _cartCount = 0;
+  List<String> listCart = [];
   List<CarouselSlider> _carouselSliders = [];
   @override
   void initState() {
     super.initState();
     _getStoredLocation();
     _get();
+    _cart();
+  }
+
+  void _addtocart(dynamic article) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<String> listArticles = prefs.getStringList('cart') ?? [];
+    // convertir l'article en chaîne de caractères et l'ajouter à la liste
+    listArticles.add(jsonEncode(article));
+    await prefs.setStringList('cart', listArticles);
+    setState(() {
+      _cart();
+    });
+  }
+
+  void _cart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    listCart = prefs.getStringList('cart') ?? [];
   }
 
   Future<List<Widget>> _get() async {
@@ -78,6 +100,30 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       'Price: ${articles[index]['prix']}',
                       style: TextStyle(fontSize: 14.0),
+                    ),
+                    SizedBox(height: 8.0),
+                    GestureDetector(
+                      onTap: () {
+                        _addtocart(articles[index]);
+                      },
+                      child: Container(
+                        height: 30.0,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Add to cart',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 );
@@ -213,6 +259,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    int cartCount = 0;
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
@@ -351,9 +398,39 @@ class _HomePageState extends State<HomePage> {
               ),
               onPressed: () {},
             ),
-            IconButton(
-              icon: Icon(Icons.shopping_cart),
-              onPressed: () {},
+            Stack(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.shopping_cart),
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (_) => gestionPanier()));
+                  },
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '${listCart.length}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
             ),
             IconButton(
               icon: Icon(Icons.person),

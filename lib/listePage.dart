@@ -73,13 +73,11 @@ class MyTableScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final data = snapshot.data!;
-
             return ListView.separated(
               separatorBuilder: (BuildContext context, int index) => Divider(),
               itemCount: data.length,
               itemBuilder: (BuildContext context, int index) {
                 final item = data[index];
-
                 return ListTile(
                   title: Text(item.title),
                   subtitle: Text(item.address),
