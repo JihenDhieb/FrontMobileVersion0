@@ -12,7 +12,16 @@ class ProfileForm extends StatefulWidget {
   _ProfileFormState createState() => _ProfileFormState();
 }
 
-enum Activity { FOOD, Mode, BEAUTE, ELECTRONIQUES }
+enum Activity {
+  RESTAURANTS,
+  MODE,
+  BEAUTE,
+  ELECTRONIQUES,
+  ELECTROMENAGER,
+  SUPERETTE,
+  SPORTS,
+  PATISSERIE
+}
 
 enum Region {
   Ariana,
@@ -44,6 +53,7 @@ enum Region {
 class _ProfileFormState extends State<ProfileForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
+
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
@@ -88,10 +98,31 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
+  void _goMap() {
+    final String title = _titleController.text;
+    final String address = _addressController.text;
+    final String phone = _phoneController.text;
+    final String postalCode = _postalCodeController.text;
+    final String email = _emailController.text;
+
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyApp(
+                title,
+                address,
+                phone,
+                postalCode,
+                email,
+                selectedActivity.toString().split('.').last,
+                selectedRegion.toString().split('.').last,
+                imageProfile,
+                imageCouverture)));
+  }
+
   Future<void> addPage(BuildContext context) async {
     final String title = _titleController.text;
     final String address = _addressController.text;
-
     final String phone = _phoneController.text;
     final String postalCode = _postalCodeController.text;
     final String email = _emailController.text;
@@ -163,6 +194,19 @@ class _ProfileFormState extends State<ProfileForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text('Add Page '),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MyTableScreen(),
+                  ),
+                );
+              }),
+        ),
         key: _formKey,
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -170,13 +214,6 @@ class _ProfileFormState extends State<ProfileForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Add Page',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
-                  ),
-                ),
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
@@ -186,6 +223,23 @@ class _ProfileFormState extends State<ProfileForm> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a title';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    title = value;
+                  },
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _postalCodeController,
+                  decoration: InputDecoration(
+                    labelText: 'PostalCode',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a PostalCode';
                     }
                     return null;
                   },
@@ -263,7 +317,13 @@ class _ProfileFormState extends State<ProfileForm> {
                       onChanged: (activity) {
                         setState(() {
                           selectedActivity = activity;
-                          isFoodSelected = selectedActivity == Activity.FOOD;
+                          if (selectedActivity == Activity.RESTAURANTS ||
+                              selectedActivity == Activity.SUPERETTE ||
+                              selectedActivity == Activity.PATISSERIE) {
+                            isFoodSelected = true;
+                          } else {
+                            isFoodSelected = false;
+                          }
                         });
                       },
                       validator: (value) {
@@ -273,16 +333,6 @@ class _ProfileFormState extends State<ProfileForm> {
                         return null;
                       },
                     ),
-                    if (isFoodSelected) ...[
-                      SizedBox(height: 20.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (_) => MyApp()));
-                        },
-                        child: Text('Add your  position'),
-                      ),
-                    ],
                   ],
                 ),
                 SizedBox(height: 20.0),
@@ -380,10 +430,25 @@ class _ProfileFormState extends State<ProfileForm> {
                     ),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: () => _showConfirmationDialog(context),
-                  child: Text('Save'),
-                ),
+                if (isFoodSelected) ...[
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      _goMap();
+                    },
+                    child: Text('Add your  position'),
+                  ),
+                ],
+                if (!isFoodSelected)
+                  Center(
+                    child: SizedBox(
+                      width: 400,
+                      child: ElevatedButton(
+                        onPressed: () => _showConfirmationDialog(context),
+                        child: Text('Save'),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

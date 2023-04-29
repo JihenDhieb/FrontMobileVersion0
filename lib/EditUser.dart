@@ -1,3 +1,5 @@
+import 'package:appcommerce/LoginPage.dart';
+import 'package:appcommerce/compte.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -64,7 +66,7 @@ class _EditUserState extends State<EditUser> {
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => HomePage()),
+          MaterialPageRoute(builder: (_) => HomePage("reg")),
         );
 
         // If update is successful, navigate back to Compte widget
@@ -108,7 +110,15 @@ class _EditUserState extends State<EditUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit User')),
+      appBar: AppBar(
+        title: const Text('Edit User'),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (_) => LoginPage()));
+            }),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

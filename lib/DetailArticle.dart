@@ -14,8 +14,8 @@ class DetailArticle extends StatelessWidget {
 
   DetailArticle(this.article) {}
   Future<void> _openPage(BuildContext context) async {
-    print("heeere");
     final id = this.article['page']['id'];
+    print(id);
     final request = (await http.get(
         Uri.parse('http://192.168.1.26:8080/article/findArticlesByPage/$id')));
 

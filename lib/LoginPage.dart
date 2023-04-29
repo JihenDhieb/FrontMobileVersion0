@@ -104,9 +104,10 @@ class _LoginPageState extends State<LoginPage> {
             icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (_) => HomePage()));
+                  context, MaterialPageRoute(builder: (_) => HomePage("reg")));
             },
           ),
+          title: Text('Sign In'),
         ),
         backgroundColor: Colors.blueGrey[50],
         body: SafeArea(
@@ -163,8 +164,6 @@ class _LoginPageState extends State<LoginPage> {
                                   },
                                 ),
                                 SizedBox(height: 16.0),
-                                // initialize password visibility as hidden
-
                                 TextFormField(
                                   controller: _passwordController,
                                   keyboardType: TextInputType.visiblePassword,
@@ -203,24 +202,27 @@ class _LoginPageState extends State<LoginPage> {
                                     return null;
                                   },
                                 ),
-
                                 SizedBox(height: 16.0),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      _login();
-                                    }
-                                  },
-                                  child: Text('login'),
+                                Center(
+                                  child: SizedBox(
+                                    width: 300,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        if (_formKey.currentState!.validate()) {
+                                          _login();
+                                        }
+                                      },
+                                      child: Text('login'),
+                                    ),
+                                  ),
                                 ),
-
-                                // Existing widgets
-                                const SizedBox(height: 50),
-                                const Text(
+                                SizedBox(height: 50),
+                                Text(
                                   'Have An Account?',
                                   style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -232,10 +234,13 @@ class _LoginPageState extends State<LoginPage> {
                                   },
                                   style: ButtonStyle(
                                     shape: MaterialStateProperty.all<
-                                        OutlinedBorder>(StadiumBorder()),
+                                        OutlinedBorder>(
+                                      StadiumBorder(),
+                                    ),
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
-                                            Colors.white),
+                                      Colors.white,
+                                    ),
                                   ),
                                   child: Text(
                                     'Sign Up',

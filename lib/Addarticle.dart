@@ -47,8 +47,8 @@ class Addarticle extends StatelessWidget {
 
   Future<void> addArticle(BuildContext context) async {
     final String nom = _nomController.text;
-    final String prix = _descriptionController.text;
-    final String nbstock = _nomController.text;
+    final String prix = _prixController.text;
+    final String nbstock = _nbstockController.text;
     final String description = _descriptionController.text;
 
     final String id = pageData['id'];
@@ -59,11 +59,10 @@ class Addarticle extends StatelessWidget {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<dynamic, dynamic>{
-        'id': pageData['id'],
         'nom': nom,
         'description': description,
         'prix': prix,
-        'nbstock': nbstock,
+        'nbstock': nbstock
       }),
     );
 

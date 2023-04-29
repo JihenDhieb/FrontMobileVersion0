@@ -1,4 +1,6 @@
+import 'package:appcommerce/MyMapEdit.dart';
 import 'package:appcommerce/detailPage.dart';
+import 'package:appcommerce/home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -14,7 +16,16 @@ class EditPage extends StatefulWidget {
   _EditPageState createState() => _EditPageState();
 }
 
-enum Activity { FOOD, Mode, BEAUTE, ELECTRONIQUES }
+enum Activity {
+  RESTAURANTS,
+  MODE,
+  BEAUTE,
+  ELECTRONIQUES,
+  ELECTROMENAGER,
+  SUPERETTE,
+  SPORTS,
+  PATISSERIE
+}
 
 enum Region {
   Ariana,
@@ -150,10 +161,52 @@ class _EditPageState extends State<EditPage> {
     );
   }
 
+  void _goMapEdit() {
+    final String title = _titleController.text;
+    final String address = _addressController.text;
+    final String phone = _phoneController.text;
+    final String postalCode = _postalCodeController.text;
+    final String email = _emailController.text;
+
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyAppEdit(
+                widget.pageData['id'],
+                title,
+                address,
+                phone,
+                postalCode,
+                email,
+                selectedActivity.toString().split('.').last,
+                selectedRegion.toString().split('.').last,
+                widget.pageData['longitude'],
+                widget.pageData['latitude'])));
+  }
+
+  bool isFoodSelected = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit User')),
+      appBar: AppBar(
+        title: Text(
+          'Edit Page ',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (_) => MyTableScreen()));
+          },
+        ),
+        backgroundColor: Colors.blue, // couleur de fond de la barre
+        elevation: 0, // retirer l'ombre de la barre
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -272,6 +325,13 @@ class _EditPageState extends State<EditPage> {
                 onChanged: (activity) {
                   setState(() {
                     selectedActivity = activity!;
+                    if (selectedActivity == Activity.RESTAURANTS ||
+                        selectedActivity == Activity.SUPERETTE ||
+                        selectedActivity == Activity.PATISSERIE) {
+                      isFoodSelected = true;
+                    } else {
+                      isFoodSelected = false;
+                    }
                   });
                 },
                 validator: (value) {
@@ -306,13 +366,29 @@ class _EditPageState extends State<EditPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                  onPressed: _showConfirmationDialog,
-                  child: Text('Save'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
-                  )),
+              if (selectedActivity == Activity.RESTAURANTS ||
+                  selectedActivity == Activity.SUPERETTE ||
+                  selectedActivity == Activity.PATISSERIE) ...[
+                SizedBox(height: 20.0),
+                ElevatedButton(
+                  onPressed: () {
+                    _goMapEdit();
+                  },
+                  child: Text('Add your  position'),
+                ),
+              ],
+              if (!isFoodSelected && selectedActivity != Activity.RESTAURANTS ||
+                  selectedActivity != Activity.SUPERETTE ||
+                  selectedActivity != Activity.PATISSERIE)
+                Center(
+                  child: SizedBox(
+                    width: 400,
+                    child: ElevatedButton(
+                      onPressed: () => _showConfirmationDialog(),
+                      child: Text('Save'),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

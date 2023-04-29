@@ -27,7 +27,7 @@ class _WelcomeState extends State<Welcome> {
             {'latitude': latitude, 'longitude': longitude});
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => HomePage("reg")),
         );
       }
     });
@@ -81,7 +81,7 @@ class _WelcomeState extends State<Welcome> {
     }
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomePage()),
+      MaterialPageRoute(builder: (context) => HomePage("reg")),
     );
   }
 
@@ -129,15 +129,37 @@ class _WelcomeState extends State<Welcome> {
                 bottom: 100,
                 left: 0,
                 right: 0,
-                child: ElevatedButton(
-                  onPressed: _getLocationPermission,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.location_on),
-                      SizedBox(width: 5.0),
-                      Text('Get current location'),
-                    ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30.0),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.blue,
+                          Colors.purple,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: _getLocationPermission,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.location_on, color: Colors.white),
+                            SizedBox(width: 5.0),
+                            Text(
+                              'Get current location',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

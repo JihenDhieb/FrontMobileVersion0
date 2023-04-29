@@ -56,9 +56,17 @@ class MyTableScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (_) => HomePage()));
+                context, MaterialPageRoute(builder: (_) => HomePage("reg")));
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Action de recherche
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<Page>>(
         future: getData(),
@@ -66,24 +74,20 @@ class MyTableScreen extends StatelessWidget {
           if (snapshot.hasData) {
             final data = snapshot.data!;
 
-            return DataTable(
-              columns: [
-                DataColumn(label: Text('Title')),
-                DataColumn(label: Text('Adress')),
-              ],
-              rows: data
-                  .map((item) => DataRow(
-                        cells: [
-                          DataCell(Text(item.title)),
-                          DataCell(Text(item.address)),
-                        ],
-                        onSelectChanged: (selected) {
-                          if (selected != null && selected) {
-                            _openPage(item.id, context);
-                          }
-                        },
-                      ))
-                  .toList(),
+            return ListView.separated(
+              separatorBuilder: (BuildContext context, int index) => Divider(),
+              itemCount: data.length,
+              itemBuilder: (BuildContext context, int index) {
+                final item = data[index];
+
+                return ListTile(
+                  title: Text(item.title),
+                  subtitle: Text(item.address),
+                  onTap: () {
+                    _openPage(item.id, context);
+                  },
+                );
+              },
             );
           } else if (snapshot.hasError) {
             return Center(

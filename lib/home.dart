@@ -6,14 +6,21 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
+  String value;
+  HomePage(this.value);
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 enum Category {
-  Mode,
+  RESTAURANTS,
+  MODE,
   BEAUTE,
   ELECTRONIQUES,
+  ELECTROMENAGER,
+  SUPERETTE,
+  SPORTS,
+  PATISSERIE
 }
 
 class _HomePageState extends State<HomePage> {
@@ -28,86 +35,171 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Widget>> _get() async {
-    // Retourne une liste de Widgets plutôt qu'un Future
     List<Widget> widgets = [];
-    for (var i = 0; i < Category.values.length; i++) {
-      final activity = Category.values[i].toString().split('.').last;
-
-      final response = await http.post(
-          Uri.parse('http://192.168.1.26:8080/article/articlesByCategory'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(activity));
-
-      if (response.statusCode == 200) {
-        final articles = jsonDecode(response.body);
-        if (articles.length != 0) {
-          List<Widget> items = List.generate(
-            articles.length,
-            (index) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
+    if (widget.value == "reg") {
+      for (var i = 0; i < Category.values.length; i++) {
+        final activity = Category.values[i].toString().split('.').last;
+        final response = await http.post(
+            Uri.parse('http://192.168.1.26:8080/article/articlesByCategory'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(activity));
+        if (response.statusCode == 200) {
+          final articles = jsonDecode(response.body);
+          if (articles.length != 0) {
+            List<Widget> items = List.generate(
+              articles.length,
+              (index) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: MemoryImage(
+                            base64Decode(
+                              articles[index]['image']['bytes'],
+                            ),
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      'Name: ${articles[index]['nom']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    SizedBox(height: 6.0),
+                    Text(
+                      'Price: ${articles[index]['prix']}',
+                      style: TextStyle(fontSize: 14.0),
+                    ),
+                  ],
+                );
+              },
+            );
+            _carouselSliders.add(
+              CarouselSlider(
+                options: CarouselOptions(
+                  aspectRatio: 16 / 9,
+                  viewportFraction: 0.33, // increase to display more items
+                  autoPlay: false,
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enlargeCenterPage: false,
+                ),
+                items: items,
+              ),
+            );
+            widgets.add(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 90,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: MemoryImage(
-                          base64Decode(
-                            articles[index]['image']['bytes'],
-                          ),
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.circular(10.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      Category.values[i].toString().split('.').last,
+                      style: TextStyle(fontSize: 20),
                     ),
                   ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    'Name: ${articles[index]['nom']}',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  SizedBox(height: 6.0),
-                  Text(
-                    'Stock: ${articles[index]['nbstock']}',
-                    style: TextStyle(fontSize: 14.0),
-                  ),
+                  _carouselSliders.last,
                 ],
-              );
-            },
-          );
-          _carouselSliders.add(
-            CarouselSlider(
-              options: CarouselOptions(
-                aspectRatio: 16 / 9,
-                viewportFraction: 0.8,
-                autoPlay: false,
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enlargeCenterPage: true,
               ),
-              items: items,
-            ),
-          );
-
-          widgets.add(
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    Category.values[i].toString().split('.').last,
-                    style: TextStyle(fontSize: 24),
-                  ),
+            );
+          }
+        }
+      }
+    } else if (widget.value == "loc") {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      double? lat = prefs.getDouble('latitude');
+      double? long = prefs.getDouble('longitude');
+      for (var i = 0; i < Category.values.length; i++) {
+        final activity = Category.values[i].toString().split('.').last;
+        final response = await http.post(
+            Uri.parse(
+                'http://192.168.1.26:8080/article/articlesLocal/$lat/$long'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(activity));
+        if (response.statusCode == 200) {
+          final articles = jsonDecode(response.body);
+          if (articles.length != 0) {
+            List<Widget> items = List.generate(
+              articles.length,
+              (index) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: MemoryImage(
+                            base64Decode(
+                              articles[index]['image']['bytes'],
+                            ),
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      'Name: ${articles[index]['nom']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    SizedBox(height: 6.0),
+                    Text(
+                      'Price: ${articles[index]['prix']}',
+                      style: TextStyle(fontSize: 14.0),
+                    ),
+                  ],
+                );
+              },
+            );
+            _carouselSliders.add(
+              CarouselSlider(
+                options: CarouselOptions(
+                  aspectRatio: 16 / 9,
+                  viewportFraction: 0.33, // increase to display more items
+                  autoPlay: false,
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enlargeCenterPage: false,
                 ),
-                _carouselSliders.last,
-              ],
-            ),
-          );
+                items: items,
+              ),
+            );
+            widgets.add(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      Category.values[i].toString().split('.').last,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  _carouselSliders.last,
+                ],
+              ),
+            );
+          }
         }
       }
     }
+
     return widgets;
   }
 
@@ -129,20 +221,45 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            ListTile(
-              title: Text('Régional'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
-              },
+            SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
+              child: ListTile(
+                leading: Icon(Icons.location_city, color: Colors.red),
+                title: Text('Régional',
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage("reg")),
+                  );
+                },
+              ),
             ),
-            ListTile(
-              title: Text('local'),
-              onTap: () {
-                // Ajoutez votre logique ici
-              },
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
+              child: ListTile(
+                leading: Icon(Icons.location_on, color: Colors.blue),
+                title: Text('Local',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage("loc")),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -204,7 +321,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => HomePage()));
+              context, MaterialPageRoute(builder: (_) => HomePage("")));
         },
         child: Icon(
           Icons.home,
@@ -240,7 +357,12 @@ class _HomePageState extends State<HomePage> {
             ),
             IconButton(
               icon: Icon(Icons.person),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginPage()),
+                );
+              },
             ),
           ],
         ),

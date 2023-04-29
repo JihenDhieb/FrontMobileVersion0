@@ -420,7 +420,7 @@ class detailPage extends StatelessWidget {
                                     ),
                                     SizedBox(height: 6.0),
                                     Text(
-                                      'Stock: ${articles[index]['nbstock']}',
+                                      'Price: ${articles[index]['prix']}',
                                       style: TextStyle(fontSize: 14.0),
                                     ),
                                   ],

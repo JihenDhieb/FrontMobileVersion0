@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'CreatePage.dart';
 import 'listePage.dart';
 
-class MyApp extends StatefulWidget {
+class MyAppEdit extends StatefulWidget {
+  String id;
   String title;
   String address;
   String phone;
@@ -14,27 +15,40 @@ class MyApp extends StatefulWidget {
   String email;
   dynamic activity;
   dynamic region;
-  dynamic imageProfile;
-  dynamic imageCouverture;
   dynamic longitude;
   dynamic latitude;
-  MyApp(this.title, this.address, this.phone, this.postalCode, this.email,
-      this.activity, this.region, this.imageProfile, this.imageCouverture);
+  MyAppEdit(this.id, this.title, this.address, this.phone, this.postalCode,
+      this.email, this.activity, this.region, this.longitude, this.latitude);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _MyAppEditState createState() => _MyAppEditState();
 }
 
-class _MyAppState extends State<MyApp> {
-  Future<void> addPage(BuildContext context) async {
+class _MyAppEditState extends State<MyAppEdit> {
+  @override
+  void initState() {
+    final latLng = LatLng(widget.latitude, widget.longitude);
+    super.initState();
+    setState(() {
+      _markers.clear();
+      _markers.add(Marker(
+        markerId: MarkerId('selected_location'),
+        position: latLng,
+      ));
+      _selectedLatLng = latLng;
+    });
+  }
+
+  void _submitForm() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
-    final response = await http.post(
-      Uri.parse('http://192.168.1.26:8080/pages/add/$id'),
+    final response = await http.put(
+      Uri.parse('http://192.168.1.26:8080/pages/editPage/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<dynamic, dynamic>{
+      body: jsonEncode(<String, dynamic>{
+        'id': widget.id,
         'title': widget.title,
         'address': widget.address,
         'phone': widget.phone,
@@ -46,26 +60,22 @@ class _MyAppState extends State<MyApp> {
         'latitude': widget.latitude
       }),
     );
+
     if (response.statusCode == 200) {
-      var id1 = response.body;
-
-      final request = http.MultipartRequest('POST',
-          Uri.parse('http://192.168.1.26:8080/pages/addImagesToPage/$id1'));
-
-      var imageProfile1 = await http.MultipartFile.fromPath(
-          'imageProfile', widget.imageProfile!.path);
-      var imageCouverture1 = await http.MultipartFile.fromPath(
-          'imageCouverture', widget.imageCouverture!.path);
-
-      request.files.add(imageProfile1);
-      request.files.add(imageCouverture1);
-      var responsee = await request.send();
-      if (responsee.statusCode == 200) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MyTableScreen()));
-      }
+      // If update is successful, navigate back to Compte widget
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MyTableScreen(),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Page details updated')),
+      );
     } else {
-      print('Error adding page');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error updating Page details')),
+      );
     }
   }
 
@@ -120,7 +130,7 @@ class _MyAppState extends State<MyApp> {
           if (_selectedLatLng != null) {
             widget.longitude = _selectedLatLng.longitude;
             widget.latitude = _selectedLatLng.latitude;
-            addPage(context);
+            _submitForm();
           }
         },
         child: Icon(Icons.save),

@@ -45,7 +45,6 @@ class _EditArticleState extends State<EditArticle> {
       final String prix = _prixController.text;
       final String description = _descriptionController.text;
       final String nbstock = _nbstockController.text;
-
       final response = await http.put(
         Uri.parse('http://192.168.1.26:8080/article/editArticle'),
         headers: <String, String>{
