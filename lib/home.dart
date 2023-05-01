@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'DetailPanier.dart';
 
 class HomePage extends StatefulWidget {
   String value;
@@ -39,21 +40,18 @@ class _HomePageState extends State<HomePage> {
     _cart();
   }
 
-  void _addtocart(dynamic article) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    List<String> listArticles = prefs.getStringList('cart') ?? [];
-    // convertir l'article en chaîne de caractères et l'ajouter à la liste
-    listArticles.add(jsonEncode(article));
-    await prefs.setStringList('cart', listArticles);
-    setState(() {
-      _cart();
-    });
-  }
-
   void _cart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     listCart = prefs.getStringList('cart') ?? [];
+  }
+
+  Future<void> _DetailArticle(BuildContext context, id) async {
+    final request = await http
+        .get(Uri.parse('http://192.168.1.26:8080/article/getarticle/$id'));
+    final Map<String, dynamic> article = json.decode(request.body);
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => DetailPanier(article)));
   }
 
   Future<List<Widget>> _get() async {
@@ -73,59 +71,40 @@ class _HomePageState extends State<HomePage> {
             List<Widget> items = List.generate(
               articles.length,
               (index) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: MemoryImage(
-                            base64Decode(
-                              articles[index]['image']['bytes'],
-                            ),
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      'Name: ${articles[index]['nom']}',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                    SizedBox(height: 6.0),
-                    Text(
-                      'Price: ${articles[index]['prix']}',
-                      style: TextStyle(fontSize: 14.0),
-                    ),
-                    SizedBox(height: 8.0),
-                    GestureDetector(
-                      onTap: () {
-                        _addtocart(articles[index]);
-                      },
-                      child: Container(
-                        height: 30.0,
+                return GestureDetector(
+                  onTap: () {
+                    _DetailArticle(context, articles[index]['id']);
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 100,
                         width: 100,
                         decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Add to cart',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.bold,
+                          image: DecorationImage(
+                            image: MemoryImage(
+                              base64Decode(
+                                articles[index]['image']['bytes'],
+                              ),
                             ),
+                            fit: BoxFit.cover,
                           ),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 8.0),
+                      Text(
+                        'Name: ${articles[index]['nom']}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      SizedBox(height: 6.0),
+                      Text(
+                        'Price: ${articles[index]['prix']}',
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                    ],
+                  ),
                 );
               },
             );

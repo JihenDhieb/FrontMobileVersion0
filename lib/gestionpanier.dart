@@ -1,8 +1,10 @@
+import 'package:appcommerce/DetailPanier.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'home.dart';
+import 'package:appcommerce/DetailArticle.dart';
 
 class Article {
   final String nom;
@@ -33,6 +35,15 @@ Future<List<Article>> _cart() async {
       .map((jsonString) => jsonDecode(jsonString))
       .map((json) => Article.fromJson(json))
       .toList();
+}
+
+Future<void> _DetailArticle(BuildContext context, id) async {
+  final request = await http
+      .get(Uri.parse('http://192.168.1.26:8080/article/getarticle/$id'));
+  final Map<String, dynamic> article = json.decode(request.body);
+
+  Navigator.pushReplacement(
+      context, MaterialPageRoute(builder: (_) => DetailPanier(article)));
 }
 
 Future<void> _removeItem(dynamic id) async {
@@ -100,7 +111,9 @@ class _gestionPanierState extends State<gestionPanier> {
                       });
                     },
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    _DetailArticle(context, item.id);
+                  },
                 );
               },
             );
