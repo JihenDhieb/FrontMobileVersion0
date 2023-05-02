@@ -148,6 +148,10 @@ class _EditPageState extends State<EditPage> {
               Navigator.pop(context);
             },
             child: Text('Cancel'),
+            style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: Colors.orange,
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -155,7 +159,11 @@ class _EditPageState extends State<EditPage> {
               Navigator.pop(context);
             },
             child: Text('Save'),
-          ),
+            style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: Colors.orange,
+            ),
+          )
         ],
       ),
     );
@@ -189,6 +197,7 @@ class _EditPageState extends State<EditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.orange,
         title: Text(
           'Edit Page ',
           style: TextStyle(
@@ -204,7 +213,7 @@ class _EditPageState extends State<EditPage> {
                 context, MaterialPageRoute(builder: (_) => MyTableScreen()));
           },
         ),
-        backgroundColor: Colors.blue, // couleur de fond de la barre
+
         elevation: 0, // retirer l'ombre de la barre
       ),
       body: Padding(
@@ -374,8 +383,12 @@ class _EditPageState extends State<EditPage> {
                   onPressed: () {
                     _goMapEdit();
                   },
-                  child: Text('Add your  position'),
-                ),
+                  child: Text('Add your position'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.orange,
+                    fixedSize: Size(400, 20),
+                  ),
+                )
               ],
               if (!isFoodSelected && selectedActivity != Activity.RESTAURANTS ||
                   selectedActivity != Activity.SUPERETTE ||
@@ -386,6 +399,9 @@ class _EditPageState extends State<EditPage> {
                     child: ElevatedButton(
                       onPressed: () => _showConfirmationDialog(),
                       child: Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.orange,
+                      ),
                     ),
                   ),
                 ),

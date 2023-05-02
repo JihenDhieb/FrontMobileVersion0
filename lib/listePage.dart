@@ -52,6 +52,7 @@ class MyTableScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('My Pages'),
+        backgroundColor: Colors.orange, // ajouter la couleur orange ici
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -78,12 +79,15 @@ class MyTableScreen extends StatelessWidget {
               itemCount: data.length,
               itemBuilder: (BuildContext context, int index) {
                 final item = data[index];
-                return ListTile(
-                  title: Text(item.title),
-                  subtitle: Text(item.address),
-                  onTap: () {
-                    _openPage(item.id, context);
-                  },
+                return Card(
+                  elevation: 4,
+                  child: ListTile(
+                    title: Text(item.title),
+                    subtitle: Text(item.address),
+                    onTap: () {
+                      _openPage(item.id, context);
+                    },
+                  ),
                 );
               },
             );
@@ -104,6 +108,7 @@ class MyTableScreen extends StatelessWidget {
               context, MaterialPageRoute(builder: (_) => ProfileForm()));
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.orange, // ajouter la couleur orange ici
       ),
     );
   }

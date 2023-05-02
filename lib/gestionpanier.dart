@@ -56,7 +56,22 @@ class _gestionPanierState extends State<gestionPanier> {
   bool _exist = false;
   int numberArticle = 0;
   bool _max = false;
+  double totalPrice = 0.0;
   List<String> listArticles = [];
+  double _getTotalPrice(List<String> listArticles) {
+    double totalPrice = 0.0;
+    for (int i = 0; i < listArticles.length; i++) {
+      Map<String, dynamic> item = json.decode(listArticles[i]);
+      double prix = double.parse(item['prix']);
+      int quantity = item['quantite'];
+      totalPrice += prix * quantity;
+    }
+    setState(() {
+      this.totalPrice = totalPrice;
+    });
+    return totalPrice;
+  }
+
   void _addtocart(dynamic article) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> listArticles = prefs.getStringList('cart') ?? [];
@@ -77,20 +92,21 @@ class _gestionPanierState extends State<gestionPanier> {
 
     if (!_exist) {
       Map<String, dynamic> articleMap = {
-        'id': article
-            .id, // access the 'id' property of the 'Article' object using dot notation
+        'id': article.id,
         'name': article.name,
-        'quantity': 1
+        'quantity': 1,
+        'prix': article.prix
       };
       listArticles.add(jsonEncode(articleMap));
       _counter++;
     }
-
     await prefs.setStringList('cart', listArticles);
+    double totalPrice = _getTotalPrice(listArticles);
+    await prefs.setDouble('totalPrice', totalPrice);
 
     setState(() {
-      _articleExist(article
-          .id); // access the 'id' property of the 'Article' object using dot notation
+      _articleExist(article.id);
+      _getTotalPrice(listArticles);
     });
   }
 
@@ -117,6 +133,7 @@ class _gestionPanierState extends State<gestionPanier> {
     }
     setState(() {
       this.numberArticle = nombreArticle;
+      _getTotalPrice(listArticles);
     });
     return nombreArticle;
   }
@@ -144,6 +161,7 @@ class _gestionPanierState extends State<gestionPanier> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.orange,
         title: Text('My Cart'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -190,58 +208,126 @@ class _gestionPanierState extends State<gestionPanier> {
                 ),
               );
             } else {
-              return ListView.separated(
-                separatorBuilder: (BuildContext context, int index) =>
-                    Divider(),
-                itemCount: data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final item = data[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: MemoryImage(base64Decode(item.image)),
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: data.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final item = data[index];
+                        return Card(
+                          child: InkWell(
+                            onTap: () {
+                              _DetailArticle(context, item.id);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage:
+                                        MemoryImage(base64Decode(item.image)),
+                                    radius: 30,
+                                  ),
+                                  SizedBox(width: 16.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.nom,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Text(
+                                          item.prix,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(Icons.remove),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _removeItem(item.id);
+                                                });
+                                              },
+                                              tooltip: 'Remove Item',
+                                              splashColor: Colors.redAccent,
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              color: Colors.grey[700],
+                                              iconSize: 24.0,
+                                            ),
+                                            FutureBuilder<int>(
+                                              future: _nombreArticle(item.id),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<int> snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return Text(
+                                                    '${snapshot.data}',
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return CircularProgressIndicator();
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.add),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _addtocart(item);
+                                                });
+                                              },
+                                              tooltip: 'ADD Item',
+                                              splashColor: Colors.redAccent,
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              color: Colors.grey[700],
+                                              iconSize: 24.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    title: Text(item.nom),
-                    subtitle: Text(item.prix),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove),
-                          onPressed: () {
-                            setState(() {
-                              _removeItem(item.id);
-                            });
-                          },
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 300.0,
+                      height: 70.0,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          textStyle: TextStyle(fontSize: 18),
+                          backgroundColor: Colors.orange,
                         ),
-                        FutureBuilder<int>(
-                          future: _nombreArticle(item.id),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<int> snapshot) {
-                            if (snapshot.hasData) {
-                              return Text(
-                                '${snapshot.data}',
-                                style: TextStyle(fontSize: 18),
-                              );
-                            } else {
-                              return CircularProgressIndicator();
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () {
-                            setState(() {
-                              _addtocart(item);
-                            });
-                          },
-                        ),
-                      ],
+                        child: Text('Commander (Total Price: $totalPrice)'),
+                      ),
                     ),
-                    onTap: () {
-                      _DetailArticle(context, item.id);
-                    },
-                  );
-                },
+                  )
+                ],
               );
             }
           } else if (snapshot.hasError) {

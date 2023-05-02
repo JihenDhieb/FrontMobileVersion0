@@ -178,6 +178,7 @@ class detailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail page'),
+        backgroundColor: Colors.orange,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -441,18 +442,31 @@ class detailPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Addarticle(pageData)));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Addarticle(pageData)),
+                        );
                       },
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.add),
-                            SizedBox(width: 4.0),
-                            Text('Add Article'),
-                          ],
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.orange),
+                      ),
+                      child: Container(
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.add),
+                              SizedBox(width: 4.0),
+                              Text(
+                                'Add Article',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

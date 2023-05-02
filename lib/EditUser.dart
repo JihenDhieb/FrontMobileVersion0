@@ -118,6 +118,7 @@ class _EditUserState extends State<EditUser> {
               Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (_) => LoginPage()));
             }),
+        backgroundColor: Colors.orange,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -204,11 +205,14 @@ class _EditUserState extends State<EditUser> {
               ),
               SizedBox(height: 16.0),
               ElevatedButton(
-                  onPressed: _showConfirmationDialog,
-                  child: Text('Save'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
-                  )),
+                onPressed: _showConfirmationDialog,
+                child: Text('Save'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 50),
+                  backgroundColor:
+                      Colors.orange, // Ajouter la couleur orange ici
+                ),
+              ),
             ],
           ),
         ),

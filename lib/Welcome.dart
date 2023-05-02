@@ -94,8 +94,8 @@ class _WelcomeState extends State<Welcome> {
         decoration: const BoxDecoration(
             gradient: LinearGradient(
                 colors: [
-                  Color.fromARGB(248, 24, 51, 186),
-                  Color.fromARGB(255, 111, 29, 165),
+                  Color.fromARGB(255, 255, 152, 0),
+                  Color.fromARGB(255, 255, 87, 51),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -111,12 +111,12 @@ class _WelcomeState extends State<Welcome> {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.shopping_cart,
+                      Icons.shopping_bag,
                       color: Colors.white,
                       size: 100,
                     ),
                     const Text(
-                      'Online Shopping ',
+                      'Shop Now',
                       style: TextStyle(
                         fontSize: 29,
                         color: Colors.white,
@@ -136,8 +136,8 @@ class _WelcomeState extends State<Welcome> {
                       borderRadius: BorderRadius.circular(30.0),
                       gradient: LinearGradient(
                         colors: [
-                          Colors.blue,
-                          Colors.purple,
+                          Color(0xFFFFA500),
+                          Color.fromARGB(255, 255, 34, 0),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,

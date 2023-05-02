@@ -95,6 +95,7 @@ class _MyAppState extends State<MyApp> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Select Location'),
+        backgroundColor: Colors.orange,
         leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -123,6 +124,7 @@ class _MyAppState extends State<MyApp> {
             addPage(context);
           }
         },
+        backgroundColor: Colors.orange,
         child: Icon(Icons.save),
       ),
     );

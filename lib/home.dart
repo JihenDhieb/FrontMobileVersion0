@@ -163,35 +163,40 @@ class _HomePageState extends State<HomePage> {
             List<Widget> items = List.generate(
               articles.length,
               (index) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: MemoryImage(
-                            base64Decode(
-                              articles[index]['image']['bytes'],
+                return GestureDetector(
+                  onTap: () {
+                    _DetailArticle(context, articles[index]['id']);
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: MemoryImage(
+                              base64Decode(
+                                articles[index]['image']['bytes'],
+                              ),
                             ),
+                            fit: BoxFit.cover,
                           ),
-                          fit: BoxFit.cover,
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      'Name: ${articles[index]['nom']}',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                    SizedBox(height: 6.0),
-                    Text(
-                      'Price: ${articles[index]['prix']}',
-                      style: TextStyle(fontSize: 14.0),
-                    ),
-                  ],
+                      SizedBox(height: 8.0),
+                      Text(
+                        'Name: ${articles[index]['nom']}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      SizedBox(height: 6.0),
+                      Text(
+                        'Price: ${articles[index]['prix']}',
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                    ],
+                  ),
                 );
               },
             );
@@ -246,6 +251,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
+        backgroundColor: Colors.orange,
       ),
       drawer: Drawer(
         child: ListView(
@@ -304,16 +310,40 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.all(8),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Recherche',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.search),
-                          ),
-                          onChanged: (value) {
-                            // TODO: Implement search functionality
-                          },
+                        margin: EdgeInsets.all(16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24),
+                                  color: Colors.grey[200],
+                                ),
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Search for items',
+                                    border: InputBorder.none,
+                                    icon: Icon(Icons.search),
+                                  ),
+                                  onChanged: (value) {
+                                    // TODO: Implement search functionality
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  // TODO: Implement clear functionality
+                                },
+                                child: Icon(Icons.clear),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -347,86 +377,83 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: ClipRRect(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        child: BottomAppBar(
+          color: Colors.white,
+          child: Container(
+            height: 70,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.account_circle, color: Colors.grey),
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (_) => LoginPage()));
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.local_offer, color: Colors.grey),
+                  onPressed: () {},
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.shopping_cart, color: Colors.grey),
+                      onPressed: () {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) => gestionPanier()));
+                      },
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${nb}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(Icons.person, color: Colors.grey),
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (_) => LoginPage()));
+                  },
+                ),
+              ],
+            ),
+          ),
+          elevation: 0,
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.orange,
+        child: Icon(Icons.home, color: Colors.white),
         onPressed: () {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (_) => HomePage("")));
         },
-        child: Icon(
-          Icons.home,
-          color: Colors.white,
-          size: 50,
-        ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.account_circle,
-              ),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => LoginPage()),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.local_offer,
-              ),
-              onPressed: () {},
-            ),
-            Stack(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.shopping_cart),
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (_) => gestionPanier()));
-                  },
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Text(
-                      '${nb}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            IconButton(
-              icon: Icon(Icons.person),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => LoginPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

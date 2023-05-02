@@ -55,6 +55,7 @@ class _SignUpState extends State<SignUp> {
                   context, MaterialPageRoute(builder: (_) => LoginPage()));
             },
           ),
+          backgroundColor: Colors.orange,
         ),
         backgroundColor: Colors.blueGrey[50],
         body: SafeArea(
@@ -232,6 +233,9 @@ class _SignUpState extends State<SignUp> {
                                 // Envoyer les données d'inscription
                               },
                               child: Text('sign up'),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.orange,
+                              ),
                             ),
                           ],
                         ),

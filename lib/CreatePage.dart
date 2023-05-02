@@ -178,12 +178,20 @@ class _ProfileFormState extends State<ProfileForm> {
               Navigator.pop(context);
             },
             child: Text('Cancel'),
+            style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: Colors.orange,
+            ),
           ),
           TextButton(
             onPressed: () {
               addPage(context);
             },
             child: Text('Save'),
+            style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: Colors.orange,
+            ),
           ),
         ],
       ),
@@ -196,6 +204,7 @@ class _ProfileFormState extends State<ProfileForm> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Add Page '),
+          backgroundColor: Colors.orange,
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
@@ -235,7 +244,11 @@ class _ProfileFormState extends State<ProfileForm> {
                   controller: _postalCodeController,
                   decoration: InputDecoration(
                     labelText: 'PostalCode',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -437,6 +450,10 @@ class _ProfileFormState extends State<ProfileForm> {
                       _goMap();
                     },
                     child: Text('Add your  position'),
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.orange),
+                    ),
                   ),
                 ],
                 if (!isFoodSelected)
@@ -446,6 +463,10 @@ class _ProfileFormState extends State<ProfileForm> {
                       child: ElevatedButton(
                         onPressed: () => _showConfirmationDialog(context),
                         child: Text('Save'),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.orange),
+                        ),
                       ),
                     ),
                   ),

@@ -101,13 +101,19 @@ class Addarticle extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.orange),
+            ),
           ),
           TextButton(
             onPressed: () {
               addArticle(context);
             },
-            child: Text('Save'),
+            child: Text(
+              'Save',
+              style: TextStyle(color: Colors.orange),
+            ),
           ),
         ],
       ),
@@ -236,9 +242,17 @@ class Addarticle extends StatelessWidget {
                         }
                       })
                 ]),
-                ElevatedButton(
-                  onPressed: () => _showConfirmationDialog(context),
-                  child: Text('Save'),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () => _showConfirmationDialog(context),
+                    child: Text('Save'),
+                    style: ButtonStyle(
+                      minimumSize:
+                          MaterialStateProperty.all<Size>(Size(200, 50)),
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.orange),
+                    ),
+                  ),
                 ),
               ],
             ),

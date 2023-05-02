@@ -108,8 +108,9 @@ class _LoginPageState extends State<LoginPage> {
             },
           ),
           title: Text('Sign In'),
+          backgroundColor: Colors.orange,
         ),
-        backgroundColor: Colors.blueGrey[50],
+        backgroundColor: Colors.orange[50],
         body: SafeArea(
             child: Center(
                 child: Container(
@@ -125,6 +126,8 @@ class _LoginPageState extends State<LoginPage> {
                           offset: Offset(0, 3),
                         ),
                       ],
+                      border: Border.all(
+                          color: Colors.grey, width: 1.0), // add a border
                     ),
                     child: SingleChildScrollView(
                         child: Form(
@@ -132,13 +135,24 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Sign In',
-                                  style: TextStyle(
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blueGrey[800],
-                                  ),
+                                Row(
+                                  // add a row for the icon and the title
+                                  children: [
+                                    Icon(
+                                      Icons.login,
+                                      size: 30,
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'Sign In',
+                                      style: TextStyle(
+                                        fontSize: 24.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(255, 0, 0, 0),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(height: 16.0),
                                 TextFormField(
@@ -147,9 +161,16 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Email',
                                     labelStyle: TextStyle(
-                                      color: Colors.blueGrey[800],
+                                      color: Colors.orange[800],
                                     ),
                                     border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.orange[800]!,
+                                        width: 2.0,
+                                      ),
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
                                   ),
@@ -170,9 +191,16 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Password',
                                     labelStyle: TextStyle(
-                                      color: Colors.blueGrey[800],
+                                      color: Colors.orange[800],
                                     ),
                                     border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.orange[800]!,
+                                        width: 2.0,
+                                      ),
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
                                     suffixIcon: IconButton(
@@ -204,18 +232,20 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 SizedBox(height: 16.0),
                                 Center(
-                                  child: SizedBox(
-                                    width: 300,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          _login();
-                                        }
-                                      },
-                                      child: Text('login'),
+                                    child: SizedBox(
+                                  width: 300,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        _login();
+                                      }
+                                    },
+                                    child: Text('login'),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.orange,
                                     ),
                                   ),
-                                ),
+                                )),
                                 SizedBox(height: 50),
                                 Text(
                                   'Have An Account?',

@@ -2,13 +2,11 @@ import 'package:appcommerce/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
 import 'gestionpanier.dart';
 
 class DetailPanier extends StatefulWidget {
   final Map<String, dynamic> article;
   late Map<dynamic, dynamic> image;
-
   DetailPanier(this.article) {
     image = article['image'];
   }
@@ -60,8 +58,13 @@ class _DetailPanierState extends State<DetailPanier> {
         if (currentQuantity > 1) {
           article['quantite'] = currentQuantity - 1;
           listArticles[i] = json.encode(article);
+          _counter--;
         } else {
-          listArticles.removeAt(i);
+          setState(() {
+            _exist = false;
+            listArticles.removeAt(i);
+            _counter--;
+          });
         }
         break;
       }
@@ -87,6 +90,7 @@ class _DetailPanierState extends State<DetailPanier> {
       Map<String, dynamic> article = json.decode(element);
       if (article["id"] == id.toString()) {
         numberArticle = article['quantite'];
+
         break;
       }
     }
@@ -107,6 +111,7 @@ class _DetailPanierState extends State<DetailPanier> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Detail Article'),
+          backgroundColor: Colors.orange,
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -131,19 +136,31 @@ class _DetailPanierState extends State<DetailPanier> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Stack(children: [
-                            Container(
-                              height: 200,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: MemoryImage(
-                                      base64Decode(widget.image['bytes'])),
-                                  fit: BoxFit.cover,
+                          Stack(
+                            children: [
+                              Container(
+                                height: 200,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  child: Image.memory(
+                                    base64Decode(widget.image['bytes']),
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ]),
+                            ],
+                          ),
                           SizedBox(height: 8),
                           Padding(
                               padding:
@@ -207,6 +224,7 @@ class _DetailPanierState extends State<DetailPanier> {
                                           icon: Icon(Icons.add_shopping_cart),
                                           label: Text('Add to cart'),
                                           style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.orange,
                                             minimumSize: Size(150, 50),
                                             fixedSize: Size(400, 60),
                                           ),
@@ -215,39 +233,16 @@ class _DetailPanierState extends State<DetailPanier> {
                                     SizedBox(height: 80),
                                     if (_exist)
                                       Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Material(
-                                              color: Color.fromARGB(
-                                                  255, 114, 158, 97),
-                                              shape: CircleBorder(),
-                                              child: InkWell(
-                                                onTap: _counter <
-                                                        1 // Utiliser `_counter < 1` au lieu de `_counter <= 0`
-                                                    ? null
-                                                    : () {
-                                                        setState(() {
-                                                          _counter--;
-                                                          _removeItem(widget
-                                                              .article["id"]);
-                                                        });
-                                                      },
-                                                splashColor: Colors.red,
-                                                child: SizedBox(
-                                                  width: 40,
-                                                  height: 40,
-                                                  child: Icon(
-                                                    Icons.remove,
-                                                    size: 30,
-                                                    color: _counter <
-                                                            1 // Utiliser `_counter < 1` au lieu de `_counter <= 0`
-                                                        ? Colors.grey
-                                                        : Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                          IconButton(
+                                            icon: Icon(Icons.remove),
+                                            onPressed: () {
+                                              setState(() {
+                                                _removeItem(
+                                                    widget.article["id"]);
+                                              });
+                                            },
                                           ),
                                           SizedBox(
                                             width: 200,
@@ -257,45 +252,13 @@ class _DetailPanierState extends State<DetailPanier> {
                                               style: TextStyle(fontSize: 24),
                                             ),
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Material(
-                                              color: Color.fromARGB(
-                                                  255, 168, 204, 145),
-                                              shape: CircleBorder(),
-                                              child: InkWell(
-                                                onTap: numberArticle ==
-                                                            int.parse(widget
-                                                                    .article[
-                                                                'nbstock']) ||
-                                                        _counter ==
-                                                            int.parse(
-                                                                widget.article[
-                                                                    'nbstock'])
-                                                    ? null
-                                                    : () {
-                                                        setState(() {
-                                                          _addtocart(
-                                                              widget.article);
-                                                        });
-                                                      },
-                                                splashColor: Colors.green,
-                                                child: SizedBox(
-                                                  width: 40,
-                                                  height: 40,
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    size: 30,
-                                                    color: numberArticle ==
-                                                            int.parse(
-                                                                widget.article[
-                                                                    'nbstock'])
-                                                        ? Colors.grey
-                                                        : Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                          IconButton(
+                                            icon: Icon(Icons.add),
+                                            onPressed: () {
+                                              setState(() {
+                                                _addtocart(widget.article);
+                                              });
+                                            },
                                           ),
                                         ],
                                       ),

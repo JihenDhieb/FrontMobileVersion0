@@ -37,6 +37,7 @@ class Compte extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -44,7 +45,7 @@ class Compte extends StatelessWidget {
                 context, MaterialPageRoute(builder: (_) => HomePage("reg")));
           },
         ),
-        backgroundColor: Colors.blue, // couleur de fond de la barre
+        backgroundColor: Colors.orange, // couleur de fond de la barre
         elevation: 0, // retirer l'ombre de la barre
       ),
       body: Stack(
