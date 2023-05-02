@@ -19,55 +19,87 @@ class DetailPanier extends StatefulWidget {
 class _DetailPanierState extends State<DetailPanier> {
   int _counter = 0;
   bool _exist = false;
-  List<String> numberArticle = [];
+  int numberArticle = 0;
   bool _max = false;
   void _addtocart(dynamic article) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> listArticles = prefs.getStringList('cart') ?? [];
-    listArticles.add(jsonEncode(article));
+    for (int i = 0; i < listArticles.length; i++) {
+      Map<String, dynamic> item = json.decode(listArticles[i]);
+      if (item['id'] == article['id']) {
+        _exist = true;
+        if (item['quantite'] < int.parse(item['nbstock'])) {
+          item['quantite'] = item['quantite'] + 1;
+          listArticles[i] = jsonEncode(item);
+          _counter++;
+          break;
+        }
+      }
+    }
+
+    if (!_exist) {
+      article['quantite'] = 1;
+      listArticles.add(jsonEncode(article));
+      _counter++;
+    }
+
     await prefs.setStringList('cart', listArticles);
 
     setState(() {
       _articleExist(article['id']);
-      _counter++;
     });
   }
 
-  void _articleExist(dynamic id) async {
+  Future<void> _removeItem(dynamic id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> listArticles = prefs.getStringList('cart') ?? [];
-    for (String element in listArticles) {
-      Map<String, dynamic> article = json.decode(element);
+    for (int i = 0; i < listArticles.length; i++) {
+      Map<String, dynamic> article = json.decode(listArticles[i]);
       if (article["id"] == id.toString()) {
-        _exist = true;
+        int currentQuantity = article['quantite'];
+        if (currentQuantity > 1) {
+          article['quantite'] = currentQuantity - 1;
+          listArticles[i] = json.encode(article);
+        } else {
+          listArticles.removeAt(i);
+        }
         break;
-      } else {
-        _exist = false;
       }
     }
-    setState(() {});
+    await prefs.setStringList('cart', listArticles);
   }
 
-  Future<void> _numbreArticle(dynamic id, dynamic nb) async {
+  Future<void> _articleExist(dynamic id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> listArticles = prefs.getStringList('cart') ?? [];
+    bool exist = listArticles
+        .any((element) => json.decode(element)["id"] == id.toString());
+    setState(() {
+      _exist = exist;
+    });
+  }
+
+  Future<void> _numbreArticle(dynamic id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> listArticles = prefs.getStringList('cart') ?? [];
+    int numberArticle = 0;
     for (String element in listArticles) {
       Map<String, dynamic> article = json.decode(element);
       if (article["id"] == id.toString()) {
-        numberArticle.add(element);
+        numberArticle = article['quantite'];
+        break;
       }
     }
-    if (numberArticle.length == int.parse(nb)) {
-      _max = true;
-    }
-    setState(() {});
+    setState(() {
+      this.numberArticle = numberArticle;
+    });
   }
 
   @override
   void initState() {
     super.initState();
     _articleExist(widget.article['id']);
-    _numbreArticle(widget.article['id'], widget.article['nbstock']);
+    _numbreArticle(widget.article['id']);
   }
 
   @override
@@ -184,40 +216,86 @@ class _DetailPanierState extends State<DetailPanier> {
                                     if (_exist)
                                       Row(
                                         children: [
-                                          IconButton(
-                                            icon: Icon(Icons.remove),
-                                            onPressed: _counter <= 0
-                                                ? null
-                                                : () {
-                                                    setState(() {
-                                                      _counter--;
-                                                    });
-                                                  },
-                                            color: _counter <= 0
-                                                ? Colors.grey
-                                                : null,
-                                          ),
-                                          SizedBox(
-                                            width: 50,
-                                            child: Text(
-                                              '${_counter + numberArticle.length}',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 16),
+                                          Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Material(
+                                              color: Color.fromARGB(
+                                                  255, 114, 158, 97),
+                                              shape: CircleBorder(),
+                                              child: InkWell(
+                                                onTap: _counter <
+                                                        1 // Utiliser `_counter < 1` au lieu de `_counter <= 0`
+                                                    ? null
+                                                    : () {
+                                                        setState(() {
+                                                          _counter--;
+                                                          _removeItem(widget
+                                                              .article["id"]);
+                                                        });
+                                                      },
+                                                splashColor: Colors.red,
+                                                child: SizedBox(
+                                                  width: 40,
+                                                  height: 40,
+                                                  child: Icon(
+                                                    Icons.remove,
+                                                    size: 30,
+                                                    color: _counter <
+                                                            1 // Utiliser `_counter < 1` au lieu de `_counter <= 0`
+                                                        ? Colors.grey
+                                                        : Colors.black,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                          IconButton(
-                                            icon: Icon(Icons.add),
-                                            onPressed: _counter >=
-                                                    int.parse(widget
-                                                        .article['nbstock'])
-                                                ? null
-                                                : () {
-                                                    setState(() {
-                                                      _addtocart(
-                                                          widget.article);
-                                                    });
-                                                  },
-                                            color: _max ? Colors.grey : null,
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                              '${_counter + numberArticle}',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: 24),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Material(
+                                              color: Color.fromARGB(
+                                                  255, 168, 204, 145),
+                                              shape: CircleBorder(),
+                                              child: InkWell(
+                                                onTap: numberArticle ==
+                                                            int.parse(widget
+                                                                    .article[
+                                                                'nbstock']) ||
+                                                        _counter ==
+                                                            int.parse(
+                                                                widget.article[
+                                                                    'nbstock'])
+                                                    ? null
+                                                    : () {
+                                                        setState(() {
+                                                          _addtocart(
+                                                              widget.article);
+                                                        });
+                                                      },
+                                                splashColor: Colors.green,
+                                                child: SizedBox(
+                                                  width: 40,
+                                                  height: 40,
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    size: 30,
+                                                    color: numberArticle ==
+                                                            int.parse(
+                                                                widget.article[
+                                                                    'nbstock'])
+                                                        ? Colors.grey
+                                                        : Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),

@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   double _latitude = 0.0;
   double _longitude = 0.0;
   int _cartCount = 0;
-  List<String> listCart = [];
+  num nb = 0;
   List<CarouselSlider> _carouselSliders = [];
   @override
   void initState() {
@@ -42,7 +42,11 @@ class _HomePageState extends State<HomePage> {
 
   void _cart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    listCart = prefs.getStringList('cart') ?? [];
+    List<String> listCart = prefs.getStringList('cart') ?? [];
+    for (int i = 0; i < listCart.length; i++) {
+      Map<String, dynamic> item = json.decode(listCart[i]);
+      nb += item['quantite'];
+    }
   }
 
   Future<void> _DetailArticle(BuildContext context, id) async {
@@ -400,7 +404,7 @@ class _HomePageState extends State<HomePage> {
                       minHeight: 16,
                     ),
                     child: Text(
-                      '${listCart.length}',
+                      '${nb}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10,
