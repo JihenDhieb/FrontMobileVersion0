@@ -24,14 +24,26 @@ class _DetailPanierState extends State<DetailPanier> {
     List<String> listArticles = prefs.getStringList('cart') ?? [];
     for (int i = 0; i < listArticles.length; i++) {
       Map<String, dynamic> item = json.decode(listArticles[i]);
+
       if (item['id'] == article['id']) {
         _exist = true;
         if (item['quantite'] < int.parse(item['nbstock'])) {
           item['quantite'] = item['quantite'] + 1;
           listArticles[i] = jsonEncode(item);
           _counter++;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Article added to cart!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+
           break;
         }
+      }
+      if (item['page']['id'] != article['page']['id']) {
+        listArticles.clear();
       }
     }
 
@@ -39,6 +51,13 @@ class _DetailPanierState extends State<DetailPanier> {
       article['quantite'] = 1;
       listArticles.add(jsonEncode(article));
       _counter++;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Article added to cart!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
 
     await prefs.setStringList('cart', listArticles);
@@ -210,16 +229,6 @@ class _DetailPanierState extends State<DetailPanier> {
                                         child: ElevatedButton.icon(
                                           onPressed: () {
                                             _addtocart(widget.article);
-
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    'Article added to cart!'),
-                                                backgroundColor: Colors.green,
-                                                duration: Duration(seconds: 2),
-                                              ),
-                                            );
                                           },
                                           icon: Icon(Icons.add_shopping_cart),
                                           label: Text('Add to cart'),

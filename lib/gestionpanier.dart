@@ -1,4 +1,5 @@
 import 'package:appcommerce/DetailPanier.dart';
+import 'package:appcommerce/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -41,7 +42,6 @@ Future<void> _DetailArticle(BuildContext context, id) async {
   final request = await http
       .get(Uri.parse('http://192.168.1.26:8080/article/getarticle/$id'));
   final Map<String, dynamic> article = json.decode(request.body);
-
   Navigator.pushReplacement(
       context, MaterialPageRoute(builder: (_) => DetailPanier(article)));
 }
@@ -157,6 +157,17 @@ class _gestionPanierState extends State<gestionPanier> {
     await prefs.setStringList('cart', listArticles);
   }
 
+  Future<void> chekUserConnect() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? id = prefs.getString('id');
+    if (id == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -226,8 +237,9 @@ class _gestionPanierState extends State<gestionPanier> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    backgroundImage:
-                                        MemoryImage(base64Decode(item.image)),
+                                    backgroundImage: MemoryImage(
+                                      base64Decode(item.image),
+                                    ),
                                     radius: 30,
                                   ),
                                   SizedBox(width: 16.0),
@@ -318,7 +330,9 @@ class _gestionPanierState extends State<gestionPanier> {
                       width: 300.0,
                       height: 70.0,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          chekUserConnect();
+                        },
                         style: ElevatedButton.styleFrom(
                           textStyle: TextStyle(fontSize: 18),
                           backgroundColor: Colors.orange,
