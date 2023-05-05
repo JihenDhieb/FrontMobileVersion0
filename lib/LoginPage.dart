@@ -69,10 +69,17 @@ class _LoginPageState extends State<LoginPage> {
       );
       if (userResponse.statusCode == 200) {
         final Map<String, dynamic> userData = json.decode(userResponse.body);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => Compte(userData)),
-        );
+        final args =
+            ModalRoute.of(context)!.settings.arguments as Map<String, bool>?;
+        final fromCheckout = args?['fromCheckout'] ?? false;
+        if (fromCheckout) {
+          Navigator.pushNamed(context, '/Caisse');
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => Compte(userData)),
+          );
+        }
       }
     } else {
       print('Login failed.');
@@ -93,6 +100,18 @@ class _LoginPageState extends State<LoginPage> {
           );
         },
       );
+    }
+  }
+
+  void _signUp() {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, bool>?;
+    final fromCheckout = args?['fromCheckout'] ?? false;
+    if (fromCheckout) {
+      Navigator.pushNamed(context, '/signUp',
+          arguments: {'fromCheckout': true});
+    } else {
+      Navigator.pushNamed(context, '/signUp');
     }
   }
 
@@ -256,11 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => SignUp()),
-                                    );
+                                    _signUp();
                                   },
                                   style: ButtonStyle(
                                     shape: MaterialStateProperty.all<

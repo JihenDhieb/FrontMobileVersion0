@@ -36,8 +36,15 @@ class _SignUpState extends State<SignUp> {
 
     // Check the response status code
     if (response.statusCode == 200) {
-      // Registration successful, do something
-      print('Registration successful!');
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, bool>?;
+      final fromCheckout = args?['fromCheckout'] ?? false;
+      if (fromCheckout) {
+        Navigator.pushNamed(context, '/login',
+            arguments: {'fromCheckout': true});
+      } else {
+        Navigator.pushNamed(context, '/login');
+      }
     } else {
       // Registration failed, display the error message
       print('Registration failed');
@@ -225,10 +232,6 @@ class _SignUpState extends State<SignUp> {
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
                                   _registerUser();
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => LoginPage()));
                                 }
                                 // Envoyer les données d'inscription
                               },

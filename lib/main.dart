@@ -1,3 +1,7 @@
+import 'package:appcommerce/SignUp.dart';
+
+import 'Caisse.dart';
+import 'LoginPage.dart';
 import 'Welcome.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +19,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: {
         '/': (context) => Welcome(),
+        '/login': (context) => LoginPage(),
+        '/signUp': (context) => SignUp(),
+        '/Caisse': (context) => Caisse(),
       },
       initialRoute: '/',
     );

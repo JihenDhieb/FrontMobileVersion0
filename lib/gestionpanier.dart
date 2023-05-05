@@ -1,3 +1,4 @@
+import 'package:appcommerce/Caisse.dart';
 import 'package:appcommerce/DetailPanier.dart';
 import 'package:appcommerce/LoginPage.dart';
 import 'package:flutter/material.dart';
@@ -161,9 +162,11 @@ class _gestionPanierState extends State<gestionPanier> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? id = prefs.getString('id');
     if (id == null) {
+      Navigator.pushNamed(context, '/login', arguments: {'fromCheckout': true});
+    } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => LoginPage()),
+        MaterialPageRoute(builder: (_) => Caisse()),
       );
     }
   }
@@ -330,9 +333,7 @@ class _gestionPanierState extends State<gestionPanier> {
                       width: 300.0,
                       height: 70.0,
                       child: ElevatedButton(
-                        onPressed: () {
-                          chekUserConnect();
-                        },
+                        onPressed: chekUserConnect,
                         style: ElevatedButton.styleFrom(
                           textStyle: TextStyle(fontSize: 18),
                           backgroundColor: Colors.orange,
