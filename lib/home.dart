@@ -32,12 +32,12 @@ class _HomePageState extends State<HomePage> {
   int _cartCount = 0;
   num nb = 0;
   List<CarouselSlider> _carouselSliders = [];
+
   @override
   void initState() {
     super.initState();
     _getStoredLocation();
     _get();
-    _cart();
   }
 
   void _cart() async {
