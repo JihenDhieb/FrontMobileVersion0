@@ -24,7 +24,6 @@ class _DetailPanierState extends State<DetailPanier> {
     List<String> listArticles = prefs.getStringList('cart') ?? [];
     for (int i = 0; i < listArticles.length; i++) {
       Map<String, dynamic> item = json.decode(listArticles[i]);
-
       if (item['id'] == article['id']) {
         _exist = true;
         if (item['quantite'] < int.parse(item['nbstock'])) {

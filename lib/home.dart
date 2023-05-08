@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _getStoredLocation();
     _get();
+    _cart();
   }
 
   void _cart() async {

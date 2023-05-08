@@ -5,6 +5,20 @@ import 'package:appcommerce/gestionpanier.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'AddCommande.dart';
+
+class ArticleCaisse {
+  String idArticle;
+  int qnt;
+
+  ArticleCaisse(this.idArticle, this.qnt);
+  Map<String, dynamic> toJson() {
+    return {
+      'idArticle': idArticle,
+      'qnt': qnt,
+    };
+  }
+}
 
 class Caisse extends StatefulWidget {
   @override
@@ -18,28 +32,64 @@ class _CaisseState extends State<Caisse> {
   String description = '';
   int quantity = 0;
   String namePage = "";
+  String idVendor = "";
   String phone = "";
   String address = "";
+  String streetAddress = "";
   double totalPrice = 0.0;
+  String id = "";
+  int numberArticle = 0;
+  List<ArticleCaisse> articles = [];
+
+  Future<void> addCommande() async {
+    setState(() {
+      _cart();
+    });
+    final response = await http.post(
+      Uri.parse('http://192.168.1.26:8080/caisse/add'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<dynamic, dynamic>{
+        'idSender': id,
+        'address': address,
+        'streetAddress': streetAddress,
+        'phone': phone,
+        'selectedTime': _time.format(context),
+        'description': description,
+        'idVendor': idVendor,
+        'subTotal': totalPrice,
+        'frais': frais,
+        'totalPrice': resultat1,
+        'articles': articles,
+      }),
+    );
+    if (response.statusCode == 200) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => AddCommande()));
+    }
+  }
 
   Future<List<Article>> _cart() async {
     double total = 0.0;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> listArticles = prefs.getStringList('cart') ?? [];
-
     for (int i = 0; i < listArticles.length; i++) {
       Map<dynamic, dynamic> item = json.decode(listArticles[i]);
       Map<dynamic, dynamic> page = item['page'];
       quantity = item['quantite'];
       double prix = double.parse(item['prix']);
       total += prix * quantity;
+      var article = ArticleCaisse(item['id'], item['quantite']);
+      articles.add(article);
+
       setState(() {
+        idVendor = page['id'];
         namePage = page['title'];
         phone = page['phone'];
         address = page['address'];
         totalPrice = total;
-
         resultat();
       });
     }
@@ -50,9 +100,26 @@ class _CaisseState extends State<Caisse> {
   }
 
   late Future<List<Article>> _cartFuture;
+  Future<int> _nombreArticle(dynamic id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> listArticles = prefs.getStringList('cart') ?? [];
+    int nombreArticle = 0;
+    for (String element in listArticles) {
+      Map<String, dynamic> article = json.decode(element);
+      if (article["id"] == id.toString()) {
+        nombreArticle = article['quantite'];
+        break;
+      }
+    }
+    setState(() {
+      this.numberArticle = nombreArticle;
+    });
+    return nombreArticle;
+  }
+
   Future<dynamic> getPhoneNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString('id');
+    id = prefs.getString('id')!;
     final response =
         await http.get(Uri.parse('http://192.168.1.26:8080/User/Phone/$id'));
     if (response.statusCode == 200) {
@@ -139,7 +206,7 @@ class _CaisseState extends State<Caisse> {
                   ),
                   child: TextField(
                     onChanged: (value) {
-                      // description = value; // Cette ligne de code semble inutile
+                      address = value;
                     },
                     decoration: InputDecoration(
                       hintText: 'Enter your Region',
@@ -164,7 +231,7 @@ class _CaisseState extends State<Caisse> {
                   ),
                   child: TextField(
                     onChanged: (value) {
-                      // description = value; // Cette ligne de code semble inutile
+                      streetAddress = value;
                     },
                     decoration: InputDecoration(
                       hintText: 'Enter your street address',
@@ -281,11 +348,24 @@ class _CaisseState extends State<Caisse> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Text(
-                                                    'Quantity: $quantity',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                    ),
+                                                  FutureBuilder<int>(
+                                                    future:
+                                                        _nombreArticle(item.id),
+                                                    builder:
+                                                        (BuildContext context,
+                                                            AsyncSnapshot<int>
+                                                                snapshot) {
+                                                      if (snapshot.hasData) {
+                                                        return Text(
+                                                          '${snapshot.data}',
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                          ),
+                                                        );
+                                                      } else {
+                                                        return CircularProgressIndicator();
+                                                      }
+                                                    },
                                                   ),
                                                   Text(
                                                     'Price: ${item.prix} Dt',
@@ -313,6 +393,31 @@ class _CaisseState extends State<Caisse> {
                       return Center(child: CircularProgressIndicator());
                     }
                   },
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Description(optional)',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: TextField(
+                    onChanged: (value) {
+                      description = value;
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Enter your description',
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16.0),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -351,7 +456,7 @@ class _CaisseState extends State<Caisse> {
                   padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Action when the "Passer commande" button is pressed
+                      addCommande();
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Colors.orange,

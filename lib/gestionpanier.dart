@@ -29,16 +29,6 @@ class Article {
   }
 }
 
-Future<List<Article>> _cart() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> listArticles = prefs.getStringList('cart') ?? [];
-
-  return listArticles
-      .map((jsonString) => jsonDecode(jsonString))
-      .map((json) => Article.fromJson(json))
-      .toList();
-}
-
 Future<void> _DetailArticle(BuildContext context, id) async {
   final request = await http
       .get(Uri.parse('http://192.168.1.26:8080/article/getarticle/$id'));
@@ -59,6 +49,16 @@ class _gestionPanierState extends State<gestionPanier> {
   bool _max = false;
   double totalPrice = 0.0;
   List<String> listArticles = [];
+  Future<List<Article>> _cart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    listArticles = prefs.getStringList('cart') ?? [];
+
+    return listArticles
+        .map((jsonString) => jsonDecode(jsonString))
+        .map((json) => Article.fromJson(json))
+        .toList();
+  }
+
   double _getTotalPrice(List<String> listArticles) {
     double totalPrice = 0.0;
     for (int i = 0; i < listArticles.length; i++) {
@@ -169,6 +169,12 @@ class _gestionPanierState extends State<gestionPanier> {
         MaterialPageRoute(builder: (_) => Caisse()),
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _cart();
   }
 
   @override
