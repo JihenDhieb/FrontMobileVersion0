@@ -132,10 +132,7 @@ class _gestionPanierState extends State<gestionPanier> {
         break;
       }
     }
-    setState(() {
-      this.numberArticle = nombreArticle;
-      _getTotalPrice(listArticles);
-    });
+
     return nombreArticle;
   }
 

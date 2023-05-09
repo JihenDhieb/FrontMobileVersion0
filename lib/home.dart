@@ -246,6 +246,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  bool isLocalSelected = false;
+
   @override
   Widget build(BuildContext context) {
     int cartCount = 0;
@@ -261,15 +263,18 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
+                border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+              ),
               child: ListTile(
                 leading: Icon(Icons.location_city, color: Colors.red),
-                title: Text('Régional',
-                    style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold)),
+                title: Text(
+                  'Régional',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -281,16 +286,22 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: 10),
             Container(
               decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
+                border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+              ),
               child: ListTile(
                 leading: Icon(Icons.location_on, color: Colors.blue),
-                title: Text('Local',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold)),
+                title: Text(
+                  'Local',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 onTap: () {
+                  setState(() {
+                    isLocalSelected = true;
+                  });
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => HomePage("loc")),
@@ -298,6 +309,64 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
+            SizedBox(height: 10),
+            // Add buttons for each item in Category enum
+            ...Category.values.map((category) {
+              if (isLocalSelected) {
+                if (category == Category.RESTAURANTS ||
+                    category == Category.PATISSERIE ||
+                    category == Category.SUPERETTE) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: ListTile(
+                      leading: Icon(Icons.category),
+                      title: Text(
+                        category.toString().split('.').last,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onTap: () {
+                        // Action when the specific category is tapped
+                      },
+                    ),
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              } else {
+                // Ajoutez des catégories restantes lorsque Local n'est pas sélectionné
+                if (category != Category.RESTAURANTS &&
+                    category != Category.PATISSERIE &&
+                    category != Category.SUPERETTE) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: ListTile(
+                      leading: Icon(Icons.category),
+                      title: Text(
+                        category.toString().split('.').last,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onTap: () {
+                        // Action when the specific category is tapped
+                      },
+                    ),
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              }
+            }).toList(),
           ],
         ),
       ),
@@ -434,10 +503,9 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 IconButton(
-                  icon: Icon(Icons.person, color: Colors.grey),
+                  icon: Icon(Icons.list, color: Colors.grey),
                   onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (_) => LoginPage()));
+                    // Action when the icon is pressed
                   },
                 ),
               ],

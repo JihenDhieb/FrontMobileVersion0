@@ -111,9 +111,7 @@ class _CaisseState extends State<Caisse> {
         break;
       }
     }
-    setState(() {
-      this.numberArticle = nombreArticle;
-    });
+
     return nombreArticle;
   }
 
@@ -357,7 +355,7 @@ class _CaisseState extends State<Caisse> {
                                                                 snapshot) {
                                                       if (snapshot.hasData) {
                                                         return Text(
-                                                          '${snapshot.data}',
+                                                          'Quantity: ${snapshot.data}',
                                                           style: TextStyle(
                                                             fontSize: 18,
                                                           ),
