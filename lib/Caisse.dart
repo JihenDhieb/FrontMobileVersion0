@@ -32,7 +32,7 @@ class _CaisseState extends State<Caisse> {
   String description = '';
   int quantity = 0;
   String namePage = "";
-  String idVendor = "";
+  String idPage = "";
   String phone = "";
   String address = "";
   String streetAddress = "";
@@ -57,7 +57,7 @@ class _CaisseState extends State<Caisse> {
         'phone': phone,
         'selectedTime': _time.format(context),
         'description': description,
-        'idVendor': idVendor,
+        'idPage': idPage,
         'subTotal': totalPrice,
         'frais': frais,
         'totalPrice': resultat1,
@@ -85,7 +85,7 @@ class _CaisseState extends State<Caisse> {
       articles.add(article);
 
       setState(() {
-        idVendor = page['id'];
+        idPage = page['id'];
         namePage = page['title'];
         phone = page['phone'];
         address = page['address'];

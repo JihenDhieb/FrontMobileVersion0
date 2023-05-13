@@ -34,9 +34,23 @@ dependencies:
   fluttertoast: ^8.0.7
   path: ^1.8.0
   carousel_slider: ^4.0.0
-  permission_handler: ^9.1.0
+  permission_handler: ^10.2.0
   location: ^4.3.0
   google_maps_flutter: ^2.0.0
+  firebase_core: ^2.11.0
+  firebase_messaging: ^14.5.0
+
+
+  
+
+
+
+
+
+
+
+
+
 
   
 
@@ -48,9 +62,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: ^0.13.5
   http_parser: ^4.0.0
-  dio: ^4.0.0
+  dio: ^5.1.2
   shared_preferences: ^2.0.8
-  intl: ^0.17.0
+  intl: ^0.18.1
  
 
 

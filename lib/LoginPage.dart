@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'compte.dart';
 import 'SignUp.dart';
 import 'home.dart';
@@ -81,6 +82,19 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       }
+
+      FirebaseMessaging.instance.getToken().then((token) async {
+        final response = await http.post(
+          Uri.parse('http://192.168.1.26:8080/notification/addDevice'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<dynamic, dynamic>{
+            'token': token,
+            'email': email,
+          }),
+        );
+      });
     } else {
       print('Login failed.');
       showDialog(

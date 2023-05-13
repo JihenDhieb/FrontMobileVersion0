@@ -2,6 +2,8 @@
     package="com.example.appcommerce">
    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+   <uses-permission android:name="android.permission.VIBRATE" />
+   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 
    <application
@@ -11,6 +13,21 @@
         <!-- TODO: Add your Google Maps API key here -->
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyAATrl0uyNS4Iw1DXwbV2NLScxnUSi2J6U"/>
+       
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"></action>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
